@@ -1,8 +1,19 @@
-# Avancement Détaillé - Branche main
+# Avancement Détaillé - Phase 2 : Fondations du jeu
 
-**Branche** : `main`
+**Branche** : `feature/phase2-foundations` (à créer)
 **Dernière mise à jour** : 2025-11-15
-**Statut** : Infrastructure initiale complétée
+**Statut** : Non commencé
+
+---
+
+## Objectifs de la Phase 2
+
+Cette phase vise à mettre en place les **fondations du jeu** :
+- Modèles de données de base (Player, World, Items)
+- Schéma de base de données MySQL avec Entity Framework Core
+- Système de monde/carte basique
+- Système de joueur
+- Rendu MonoGame minimal pour visualiser le monde et le joueur
 
 ---
 
@@ -11,133 +22,87 @@
 ### Date : 2025-11-15
 
 #### Objectif de la session
-Initialiser le projet depuis zéro avec une architecture multi-projet solide et configurer l'environnement de développement complet.
+Initialiser la branche de la phase 2 et commencer l'implémentation des modèles de domaine.
 
-#### Tâches complétées ✅
+#### Tâches à réaliser
 
-1. **Configuration du repository Git**
-   - Remote configuré vers `https://github.com/MuratYannick/tiny-survival-world.git`
-   - Nettoyage de l'état initial
-   - .gitignore adapté pour C# et MonoGame
+### Priorité Haute
+- [ ] Créer les modèles de domaine dans `Core/`
+  - [ ] Player (joueur)
+  - [ ] World (monde)
+  - [ ] Item (items de base)
+  - [ ] Position (structure de position)
+- [ ] Créer le DbContext EF Core dans `Data/`
+- [ ] Configurer les entités EF Core
+- [ ] Créer la migration initiale
+- [ ] Implémenter le système de monde basique
+  - [ ] Génération simple de terrain
+  - [ ] Structure de chunks
+  - [ ] Tiles
+- [ ] Créer le système de joueur basique
+  - [ ] Statistiques de base
+  - [ ] Position et mouvement
+- [ ] Mettre en place le rendu MonoGame basique
+  - [ ] Caméra 2D
+  - [ ] Rendu du monde
+  - [ ] Rendu du joueur
 
-2. **Création de l'architecture multi-projet**
-   - `TinySurvivalWorld.Core` : Bibliothèque de classe .NET 9.0
-   - `TinySurvivalWorld.Data` : Bibliothèque de classe .NET 9.0
-   - `TinySurvivalWorld.Shared` : Bibliothèque de classe .NET 9.0
-   - `TinySurvivalWorld.Game.Desktop` : Application MonoGame Cross-Platform Desktop
+### Priorité Moyenne
+- [ ] Système de configuration (appsettings.json)
+- [ ] Connection string MySQL
+- [ ] Logging de base
 
-3. **Configuration des dépendances**
-   - Références entre projets configurées correctement
-   - NuGet packages installés :
-     - Microsoft.EntityFrameworkCore 9.0.0
-     - Pomelo.EntityFrameworkCore.MySql 9.0.0
-     - MySqlConnector 2.5.0
-     - MonoGame.Framework.DesktopGL 3.8.4.1
+### Priorité Basse
+- [ ] Tests unitaires pour les modèles
+- [ ] Documentation API
 
-4. **Résolution de problèmes**
-   - Conflit de namespace résolu dans Game1.cs (alias `XnaGame`)
-   - Compatibilité EF Core 10 → 9 pour .NET 9.0
+---
 
-5. **Documentation**
-   - `.claude/instructions.md` créé avec les directives pour les futures sessions
-   - `PROGRESS.md` créé pour le suivi global du projet
-   - `BRANCH-PROGRESS.md` créé pour le suivi détaillé de la branche
-   - Répertoire `docs/` créé pour la documentation technique
-
-6. **Commits**
-   - Commit initial créé et poussé sur GitHub
-   - Branche `main` configurée et suivie
-
-#### État actuel du code
-
-**Fichiers principaux :**
-- `TinySurvivalWorld.sln` : Solution avec 4 projets
-- `src/TinySurvivalWorld.Core/` : Vide (Class1.cs supprimé)
-- `src/TinySurvivalWorld.Data/` : Vide (Class1.cs supprimé)
-- `src/TinySurvivalWorld.Shared/` : Vide (Class1.cs supprimé)
-- `src/TinySurvivalWorld.Game.Desktop/` : Template MonoGame de base
-  - `Game1.cs` : Classe principale du jeu (avec alias XnaGame)
-  - `Program.cs` : Point d'entrée
-  - `Content/Content.mgcb` : Pipeline de contenu MonoGame
+## État actuel du code
 
 **Build** : ✅ Réussi (0 erreurs, 0 warnings)
 
----
-
-## Prochaines tâches
-
-### Priorité Haute
-- [ ] Créer la documentation technique initiale dans `docs/`
-- [ ] Définir les modèles de domaine de base (Joueur, Monde, Items)
-- [ ] Concevoir le schéma de base de données MySQL
-
-### Priorité Moyenne
-- [ ] Implémenter le système de configuration (appsettings)
-- [ ] Créer le contexte EF Core pour la base de données
-- [ ] Mettre en place les migrations EF Core
-
-### Priorité Basse
-- [ ] Configurer les tests unitaires
-- [ ] Mettre en place un système de logging
+**Projets** :
+- `TinySurvivalWorld.Core` : Vide
+- `TinySurvivalWorld.Data` : Vide
+- `TinySurvivalWorld.Shared` : Vide
+- `TinySurvivalWorld.Game.Desktop` : Template MonoGame de base
 
 ---
 
-## Décisions techniques
+## Décisions techniques à prendre
 
-### Architecture
-- **Choix** : Architecture multi-projet en couches
-- **Raison** : Faciliter l'évolution future, permettre l'ajout de nouvelles plateformes (mobile/tablette) sans modifier le core
-- **Impact** : Séparation claire des responsabilités, testabilité améliorée
-
-### Base de données
-- **Choix** : MySQL en local avec Entity Framework Core
-- **Provider** : Pomelo.EntityFrameworkCore.MySql
-- **Raison** : Open-source, performant, bien supporté par EF Core
-- **Impact** : Nécessite MySQL installé localement pour le développement
-
-### Moteur graphique
-- **Choix** : MonoGame
-- **Raison** : Cross-platform, performant, bonne communauté, adapté pour 2D
-- **Impact** : Support natif pour Desktop, mobile et tablette
-
-### Framework .NET
-- **Choix** : .NET 9.0
-- **Raison** : Version LTS la plus récente, performances améliorées
-- **Impact** : Nécessite .NET 9 SDK pour le développement
+### Questions en suspens
+1. **Taille du monde** : Monde infini ou délimité ?
+2. **Taille des chunks** : 16x16 ou 32x32 tiles ?
+3. **Taille des tiles** : 32x32 ou 64x64 pixels ?
+4. **Format de sauvegarde** : Base de données uniquement ou fichiers JSON + DB ?
+5. **Assets graphiques** : Placeholder ou création initiale ?
 
 ---
 
 ## Notes de développement
 
 ### Problèmes rencontrés et solutions
-
-1. **Conflit de namespace avec MonoGame**
-   - **Problème** : Le namespace `TinySurvivalWorld.Game.Desktop` entre en conflit avec la classe `Game` de MonoGame
-   - **Solution** : Ajout d'un alias `using XnaGame = Microsoft.Xna.Framework.Game;`
-   - **Fichier** : `src/TinySurvivalWorld.Game.Desktop/Game1.cs:4`
-
-2. **Incompatibilité EF Core 10 avec .NET 9**
-   - **Problème** : EF Core 10.0.0 nécessite .NET 10
-   - **Solution** : Installation d'EF Core 9.0.0
-   - **Impact** : Aucun, EF Core 9 est parfaitement compatible avec nos besoins
+_À documenter au fur et à mesure du développement_
 
 ---
 
 ## Statistiques
 
-**Fichiers créés** : 14
-**Lignes de code** : ~400
-**Commits** : 1
-**Branches** : 1 (main)
+**Fichiers créés** : 0
+**Lignes de code ajoutées** : 0
+**Commits** : 0
+**Tests** : 0
 
 ---
 
 ## Références utiles
 
-- [MonoGame Documentation](https://docs.monogame.net/)
-- [Entity Framework Core](https://docs.microsoft.com/en-us/ef/core/)
-- [Pomelo MySQL Provider](https://github.com/PomeloFoundation/Pomelo.EntityFrameworkCore.MySql)
+- [MonoGame 2D Camera Tutorial](https://www.monogame.net/documentation/?page=Tutorials)
+- [EF Core Migrations](https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/)
+- [Perlin Noise for Terrain Generation](https://en.wikipedia.org/wiki/Perlin_noise)
 
 ---
 
-**Note** : Ce fichier doit être mis à jour à chaque session de développement pour maintenir une trace détaillée des changements et décisions.
+**Note** : Ce fichier doit être mis à jour régulièrement pendant le développement de cette phase.
