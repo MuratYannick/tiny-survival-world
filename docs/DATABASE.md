@@ -10,14 +10,52 @@ ORM : **Entity Framework Core 9.0.0**
 
 ## État actuel
 
-**Statut** : Non implémenté
+**Statut** : Modèles créés, en attente de configuration EF Core
 **Migrations** : Aucune
+**Modèles implémentés** : Player, Faction, Clan
 
 ---
 
 ## Schéma planifié
 
 ### Tables principales
+
+#### Factions
+Représente les deux factions majeures du jeu, exclusives par ethnie.
+
+| Colonne | Type | Contraintes | Description |
+|---------|------|-------------|-------------|
+| Id | INT | PK, AUTO_INCREMENT | Identifiant unique |
+| Name | VARCHAR(100) | NOT NULL, UNIQUE | Nom de la faction |
+| Description | TEXT | NOT NULL | Description et philosophie |
+| RequiredEthnicity | TINYINT | NOT NULL | Ethnie requise (0=Éveillés, 1=Inaltérés) |
+| FoundedDate | DATETIME | NOT NULL | Date de fondation |
+
+**Données fixes** :
+1. "Éclaireurs de l'Aube Nouvelle" (RequiredEthnicity = 0 - Éveillés)
+2. "Veilleurs de l'Ancien Monde" (RequiredEthnicity = 1 - Inaltérés)
+
+---
+
+#### Clans
+Représente les clans du jeu, affiliés à une faction ou indépendants.
+
+| Colonne | Type | Contraintes | Description |
+|---------|------|-------------|-------------|
+| Id | GUID/UUID | PK | Identifiant unique |
+| Name | VARCHAR(100) | NOT NULL, UNIQUE | Nom du clan |
+| Description | TEXT | NULL | Description du clan |
+| FactionId | INT | NULL, FK → Factions | Faction affiliée (null = indépendant) |
+| EthnicityType | TINYINT | NOT NULL | Type ethnique (0=Éveillés, 1=Inaltérés, 2=Mixte) |
+| MaxMembers | INT | NOT NULL, DEFAULT 50 | Nombre max de membres |
+| LeaderId | GUID/UUID | NOT NULL, FK → Players | Leader du clan |
+| CreatedAt | DATETIME | NOT NULL | Date de création |
+
+**Règles de recrutement** :
+- Si FactionId != NULL : recrute uniquement membres de la faction
+- Si FactionId = NULL : recrute uniquement joueurs sans faction, selon EthnicityType
+
+---
 
 #### Players (Joueurs)
 Stocke les informations des joueurs et leur progression.
@@ -26,17 +64,20 @@ Stocke les informations des joueurs et leur progression.
 |---------|------|-------------|-------------|
 | Id | GUID/UUID | PK | Identifiant unique |
 | Name | VARCHAR(50) | NOT NULL, UNIQUE | Nom du joueur |
+| Ethnicity | TINYINT | NOT NULL | Ethnie (0=Éveillés, 1=Inaltérés) |
+| FactionId | INT | NULL, FK → Factions | Faction du joueur (null si aucune) |
+| ClanId | GUID/UUID | NULL, FK → Clans | Clan du joueur (null si aucun) |
 | Level | INT | NOT NULL, DEFAULT 1 | Niveau du joueur |
 | Experience | INT | NOT NULL, DEFAULT 0 | Points d'expérience |
-| Health | FLOAT | NOT NULL | Santé actuelle |
-| MaxHealth | FLOAT | NOT NULL | Santé maximale |
-| Hunger | FLOAT | NOT NULL | Niveau de faim (0-100) |
-| Thirst | FLOAT | NOT NULL | Niveau de soif (0-100) |
-| PositionX | FLOAT | NOT NULL | Position X dans le monde |
-| PositionY | FLOAT | NOT NULL | Position Y dans le monde |
-| WorldId | GUID/UUID | FK → Worlds | Monde actuel |
+| Health | FLOAT | NOT NULL, DEFAULT 100 | Santé actuelle |
+| MaxHealth | FLOAT | NOT NULL, DEFAULT 100 | Santé maximale |
+| Hunger | FLOAT | NOT NULL, DEFAULT 0 | Niveau de faim (0-100) |
+| Thirst | FLOAT | NOT NULL, DEFAULT 0 | Niveau de soif (0-100) |
+| PositionX | FLOAT | NOT NULL, DEFAULT 0 | Position X dans le monde |
+| PositionY | FLOAT | NOT NULL, DEFAULT 0 | Position Y dans le monde |
 | CreatedAt | DATETIME | NOT NULL | Date de création |
 | UpdatedAt | DATETIME | NOT NULL | Dernière mise à jour |
+| LastLogin | DATETIME | NOT NULL | Dernière connexion |
 
 ---
 
@@ -114,6 +155,10 @@ Ingrédients nécessaires pour chaque recette.
 ### Relations
 
 ```
+Factions 1───N Clans (affiliés)
+Factions 1───N Players (membres)
+Clans 1───N Players (membres)
+Clans 1───1 Players (leader)
 Worlds 1───N Players
 Players 1───N PlayerInventories
 Items 1───N PlayerInventories
@@ -121,6 +166,14 @@ Items 1───N CraftingRecipes (result)
 CraftingRecipes 1───N RecipeIngredients
 Items 1───N RecipeIngredients
 ```
+
+**Relations clés** :
+- Un joueur a **une** ethnie (obligatoire)
+- Un joueur peut avoir **au plus une** faction (selon son ethnie)
+- Un joueur peut avoir **au plus un** clan (selon faction/ethnie)
+- Une faction est exclusive à **une** ethnie
+- Un clan peut être affilié à **une** faction ou être indépendant
+- Chaque clan a **un** leader (joueur)
 
 ---
 

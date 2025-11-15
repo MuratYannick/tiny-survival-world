@@ -2,7 +2,7 @@
 
 **Branche** : `feature/phase2-foundations`
 **Dernière mise à jour** : 2025-11-15
-**Statut** : En cours - Branche créée
+**Statut** : En cours - Modèles de domaine créés
 
 ---
 
@@ -24,11 +24,21 @@ Cette phase vise à mettre en place les **fondations du jeu** :
 #### Objectif de la session
 Initialiser la branche de la phase 2 et commencer l'implémentation des modèles de domaine.
 
+#### Tâches complétées ✅
+
+1. **Modèles de domaine - Système de factions et clans**
+   - ✅ Enum `Ethnicity` (Éveillés / Inaltérés)
+   - ✅ Enum `ClanEthnicityType` (restrictions ethniques des clans)
+   - ✅ Modèle `Faction` avec logique de recrutement
+   - ✅ Modèle `Clan` avec règles d'affiliation
+   - ✅ Modèle `Player` avec statistiques de base et affiliations
+   - ✅ Logique métier pour vérifier les règles de rejoindre faction/clan
+   - ✅ Build réussie sans erreurs
+
 #### Tâches à réaliser
 
 ### Priorité Haute
-- [ ] Créer les modèles de domaine dans `Core/`
-  - [ ] Player (joueur)
+- [ ] Créer les modèles de domaine restants dans `Core/`
   - [ ] World (monde)
   - [ ] Item (items de base)
   - [ ] Position (structure de position)
@@ -70,7 +80,24 @@ Initialiser la branche de la phase 2 et commencer l'implémentation des modèles
 
 ---
 
-## Décisions techniques à prendre
+## Décisions techniques prises
+
+### Système de factions et clans
+**Contexte du jeu** :
+- 2 ethnies : Éveillés (mutants) et Inaltérés (non-mutants)
+- 2 factions exclusives par ethnie :
+  - "Éclaireurs de l'Aube Nouvelle" (Éveillés)
+  - "Veilleurs de l'Ancien Monde" (Inaltérés)
+- Clans affiliés ou indépendants avec règles de recrutement complexes
+
+**Implémentation** :
+- **Faction** : ID int (seulement 2 factions fixes), ethnie requise, collections de clans et membres
+- **Clan** : ID Guid, FactionId nullable, type ethnique pour clans indépendants
+- **Player** : ID Guid, ethnie obligatoire, FactionId et ClanId nullables
+- **Règles de recrutement** :
+  - Clans de faction : recrutent uniquement membres de leur faction
+  - Clans indépendants : recrutent uniquement sans faction, avec restrictions ethniques
+  - Méthodes `CanJoin()` pour valider les règles métier
 
 ### Questions en suspens
 1. **Taille du monde** : Monde infini ou délimité ?
@@ -83,17 +110,28 @@ Initialiser la branche de la phase 2 et commencer l'implémentation des modèles
 
 ## Notes de développement
 
+### Fichiers créés
+**Core/Enums/** :
+- `Ethnicity.cs` : Éveillés vs Inaltérés
+- `ClanEthnicityType.cs` : Restrictions ethniques des clans
+
+**Core/Models/** :
+- `Faction.cs` : Modèle avec validation d'ethnie
+- `Clan.cs` : Modèle avec logique de recrutement complexe
+- `Player.cs` : Modèle avec statistiques de survie et affiliations
+
 ### Problèmes rencontrés et solutions
-_À documenter au fur et à mesure du développement_
+_Aucun problème rencontré - Build réussie du premier coup_
 
 ---
 
 ## Statistiques
 
-**Fichiers créés** : 0
-**Lignes de code ajoutées** : 0
-**Commits** : 0
+**Fichiers créés** : 5 (2 enums, 3 modèles)
+**Lignes de code ajoutées** : ~350
+**Commits** : 1 (initialisation branche)
 **Tests** : 0
+**Build** : ✅ Réussie (0 erreurs, 0 warnings)
 
 ---
 
