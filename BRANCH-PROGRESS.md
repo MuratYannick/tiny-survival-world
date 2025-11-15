@@ -1,8 +1,8 @@
 # Avancement Détaillé - Phase 2 : Fondations du jeu
 
-**Branche** : `feature/phase2-foundations` (à créer)
+**Branche** : `feature/phase2-foundations`
 **Dernière mise à jour** : 2025-11-15
-**Statut** : Non commencé
+**Statut** : En cours - Branche créée
 
 ---
 
