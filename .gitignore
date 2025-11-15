@@ -361,3 +361,9 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# MonoGame specific
+*.mgcb.dll
+*.mgstats
+*.xnb
+**/Content/**/*.mgcontent
