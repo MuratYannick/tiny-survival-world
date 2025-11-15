@@ -88,27 +88,41 @@ Représente les différents mondes/sauvegardes de jeu.
 |---------|------|-------------|-------------|
 | Id | GUID/UUID | PK | Identifiant unique |
 | Name | VARCHAR(100) | NOT NULL, UNIQUE | Nom du monde |
-| Seed | BIGINT | NOT NULL | Seed de génération |
-| GameTime | BIGINT | NOT NULL | Temps de jeu écoulé (ticks) |
-| Difficulty | TINYINT | NOT NULL | Difficulté (0=Facile, 1=Normal, 2=Difficile) |
+| Seed | BIGINT | NOT NULL | Seed de génération procédurale |
+| GameTime | BIGINT | NOT NULL, DEFAULT 0 | Temps de jeu en millisecondes |
+| Difficulty | TINYINT | NOT NULL, DEFAULT 1 | Difficulté (0=Easy, 1=Normal, 2=Hard, 3=Hardcore) |
+| IsHardcore | BOOLEAN | NOT NULL, DEFAULT false | Mode permadeath activé |
+| WorldSizeX | INT | NOT NULL, DEFAULT 0 | Largeur en chunks (0=infini) |
+| WorldSizeY | INT | NOT NULL, DEFAULT 0 | Hauteur en chunks (0=infini) |
+| SpawnPointX | FLOAT | NOT NULL, DEFAULT 0 | Position spawn X |
+| SpawnPointY | FLOAT | NOT NULL, DEFAULT 0 | Position spawn Y |
+| GameVersion | VARCHAR(20) | NOT NULL | Version du jeu |
 | CreatedAt | DATETIME | NOT NULL | Date de création |
 | LastPlayed | DATETIME | NOT NULL | Dernier accès |
 
 ---
 
 #### Items (Items)
-Catalogue des items disponibles dans le jeu.
+Catalogue des items disponibles dans le jeu (données de référence).
 
 | Colonne | Type | Contraintes | Description |
 |---------|------|-------------|-------------|
 | Id | INT | PK, AUTO_INCREMENT | Identifiant unique |
-| Code | VARCHAR(50) | NOT NULL, UNIQUE | Code unique de l'item |
-| Name | VARCHAR(100) | NOT NULL | Nom de l'item |
+| Code | VARCHAR(50) | NOT NULL, UNIQUE | Code unique (ex: "wood_plank") |
+| Name | VARCHAR(100) | NOT NULL | Nom affiché |
 | Description | TEXT | NULL | Description |
-| Type | VARCHAR(50) | NOT NULL | Type d'item (Resource, Tool, Weapon, Food, etc.) |
-| Stackable | BOOLEAN | NOT NULL, DEFAULT true | Est empilable ? |
+| Type | TINYINT | NOT NULL | Type d'item (0-99, enum ItemType) |
+| IsStackable | BOOLEAN | NOT NULL, DEFAULT true | Est empilable ? |
 | MaxStackSize | INT | NOT NULL, DEFAULT 99 | Taille max de pile |
+| Weight | FLOAT | NOT NULL, DEFAULT 1.0 | Poids unitaire |
+| BaseValue | INT | NOT NULL, DEFAULT 0 | Valeur marchande |
 | IconPath | VARCHAR(255) | NULL | Chemin de l'icône |
+| MaxDurability | INT | NOT NULL, DEFAULT 0 | Durabilité max (0=indestructible) |
+| Damage | FLOAT | NOT NULL, DEFAULT 0 | Dégâts (armes) |
+| Defense | FLOAT | NOT NULL, DEFAULT 0 | Défense (armures) |
+| HealthRestore | FLOAT | NOT NULL, DEFAULT 0 | Soin à la consommation |
+| HungerRestore | FLOAT | NOT NULL, DEFAULT 0 | Réduit faim |
+| ThirstRestore | FLOAT | NOT NULL, DEFAULT 0 | Réduit soif |
 
 ---
 

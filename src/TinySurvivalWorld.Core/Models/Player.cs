@@ -33,6 +33,11 @@ public class Player
     /// </summary>
     public Guid? ClanId { get; set; }
 
+    /// <summary>
+    /// Identifiant du monde dans lequel le joueur existe.
+    /// </summary>
+    public Guid WorldId { get; set; }
+
     // Statistiques de base
 
     /// <summary>
@@ -108,6 +113,11 @@ public class Player
     /// Clan dirigé par ce joueur (null s'il n'est pas leader).
     /// </summary>
     public Clan? LeadingClan { get; set; }
+
+    /// <summary>
+    /// Monde dans lequel le joueur existe.
+    /// </summary>
+    public World World { get; set; } = null!;
 
     // Business logic
 

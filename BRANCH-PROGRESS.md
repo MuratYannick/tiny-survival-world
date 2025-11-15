@@ -33,15 +33,19 @@ Initialiser la branche de la phase 2 et commencer l'implémentation des modèles
    - ✅ Modèle `Clan` avec règles d'affiliation
    - ✅ Modèle `Player` avec statistiques de base et affiliations
    - ✅ Logique métier pour vérifier les règles de rejoindre faction/clan
-   - ✅ Build réussie sans erreurs
+
+2. **Modèles de domaine - Monde et Items**
+   - ✅ Structure `Position` (Shared) avec opérateurs et méthodes utilitaires
+   - ✅ Enum `Difficulty` (Easy, Normal, Hard, Hardcore)
+   - ✅ Enum `ItemType` (Resource, Tool, Weapon, Armor, Food, etc.)
+   - ✅ Modèle `World` avec génération procédurale (seed, taille, difficulté)
+   - ✅ Modèle `Item` (catalogue d'items avec propriétés variées)
+   - ✅ Relation Player → World ajoutée
+   - ✅ Build réussie sans erreurs (2 sessions)
 
 #### Tâches à réaliser
 
 ### Priorité Haute
-- [ ] Créer les modèles de domaine restants dans `Core/`
-  - [ ] World (monde)
-  - [ ] Item (items de base)
-  - [ ] Position (structure de position)
 - [ ] Créer le DbContext EF Core dans `Data/`
 - [ ] Configurer les entités EF Core
 - [ ] Créer la migration initiale
@@ -111,14 +115,22 @@ Initialiser la branche de la phase 2 et commencer l'implémentation des modèles
 ## Notes de développement
 
 ### Fichiers créés
+
+**Shared/Structures/** :
+- `Position.cs` : Structure position 2D avec distance, lerp, opérateurs
+
 **Core/Enums/** :
 - `Ethnicity.cs` : Éveillés vs Inaltérés
 - `ClanEthnicityType.cs` : Restrictions ethniques des clans
+- `Difficulty.cs` : Niveaux de difficulté du monde
+- `ItemType.cs` : Types d'items (Resource, Tool, Weapon, etc.)
 
 **Core/Models/** :
 - `Faction.cs` : Modèle avec validation d'ethnie
 - `Clan.cs` : Modèle avec logique de recrutement complexe
-- `Player.cs` : Modèle avec statistiques de survie et affiliations
+- `Player.cs` : Modèle avec statistiques de survie, affiliations et monde
+- `World.cs` : Modèle de monde avec seed, difficulté, taille
+- `Item.cs` : Catalogue d'items avec propriétés variées
 
 ### Problèmes rencontrés et solutions
 _Aucun problème rencontré - Build réussie du premier coup_
@@ -127,9 +139,9 @@ _Aucun problème rencontré - Build réussie du premier coup_
 
 ## Statistiques
 
-**Fichiers créés** : 5 (2 enums, 3 modèles)
-**Lignes de code ajoutées** : ~350
-**Commits** : 1 (initialisation branche)
+**Fichiers créés** : 10 (1 structure, 4 enums, 5 modèles)
+**Lignes de code ajoutées** : ~800
+**Commits** : 2 (initialisation branche + factions/clans)
 **Tests** : 0
 **Build** : ✅ Réussie (0 erreurs, 0 warnings)
 
