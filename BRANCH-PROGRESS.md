@@ -2,7 +2,7 @@
 
 **Branche** : `feature/phase2-foundations`
 **Dernière mise à jour** : 2025-11-15
-**Statut** : En cours - Configuration EF Core complétée
+**Statut** : En cours - Base de données MySQL créée
 
 ---
 
@@ -63,10 +63,21 @@ Initialiser la branche de la phase 2 et commencer l'implémentation des modèles
    - ✅ Migration initiale `InitialCreate` générée avec succès
    - ✅ Build réussie sans erreurs
 
+4. **Application de la migration et création de la base de données**
+   - ✅ WampServer démarré avec MySQL
+   - ✅ Migration `InitialCreate` appliquée avec succès
+   - ✅ Base de données `tinysurvivalworld_dev` créée
+   - ✅ 5 tables créées dans MySQL :
+     - `Factions` : table des factions avec index unique sur Name
+     - `Items` : catalogue d'items avec index unique sur Code, index sur Type
+     - `Worlds` : table des mondes avec seed et configuration
+     - `Clans` : table des clans avec FK vers Factions et LeaderId
+     - `Players` : table des joueurs avec FK vers World (Cascade), Faction, Clan
+   - ✅ Table `__EFMigrationsHistory` créée automatiquement par EF Core
+
 #### Tâches à réaliser
 
 ### Priorité Haute
-- [ ] Appliquer la migration pour créer la base de données MySQL
 - [ ] Implémenter le système de monde basique
   - [ ] Génération simple de terrain
   - [ ] Structure de chunks
@@ -214,9 +225,10 @@ Initialiser la branche de la phase 2 et commencer l'implémentation des modèles
 
 **Fichiers créés** : 22 (1 structure, 4 enums, 5 modèles, 1 DbContext, 1 Factory, 5 configurations, 3 migrations, 2 appsettings)
 **Lignes de code ajoutées** : ~1500
-**Commits** : 2 (initialisation branche + factions/clans) - Prochain: EF Core config
+**Commits** : 3 (init + modèles + EF Core config)
 **Tests** : 0
 **Build** : ✅ Réussie (0 erreurs, 0 warnings)
+**Base de données** : ✅ Créée avec 5 tables (MySQL 8.0 via WampServer)
 
 ---
 
