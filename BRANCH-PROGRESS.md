@@ -74,6 +74,13 @@ Démarrer la phase 3 en analysant le système actuel et en planifiant les améli
    - ✅ Affichage debug mis à jour
    - ✅ Build réussi : 0 erreurs, 0 avertissements
 
+6. **Ajout gestion d'erreur robuste pour la légende**
+   - ✅ Try-catch ajouté dans Game1.Draw() autour de l'affichage de la légende
+   - ✅ Try-catch ajouté dans LegendRenderer.Draw() avec affichage message d'erreur
+   - ✅ Message d'erreur affiché en rouge si crash de la légende
+   - ✅ Clean build complet effectué
+   - ✅ Le jeu ne devrait plus crasher, mais afficher l'erreur à l'écran
+
 #### Tâches à réaliser
 
 ### Priorité Haute

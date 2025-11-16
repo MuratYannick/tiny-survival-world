@@ -50,9 +50,11 @@ public class LegendRenderer
         if (_pixelTexture == null)
             return;
 
-        // Calculer la hauteur nécessaire pour la légende
-        var terrainTypes = System.Enum.GetValues<TileType>();
-        int legendHeight = Padding * 2 + 30 + (terrainTypes.Length * LineHeight);
+        try
+        {
+            // Calculer la hauteur nécessaire pour la légende
+            var terrainTypes = System.Enum.GetValues<TileType>();
+            int legendHeight = Padding * 2 + 30 + (terrainTypes.Length * LineHeight);
 
         // Position de la légende (coin supérieur droit)
         int legendX = screenWidth - LegendWidth - Padding;
@@ -103,6 +105,16 @@ public class LegendRenderer
             }
 
             currentY += LineHeight;
+        }
+        }
+        catch (Exception ex)
+        {
+            // En cas d'erreur, afficher un message d'erreur simple
+            if (_font != null)
+            {
+                spriteBatch.DrawString(_font, $"Erreur légende: {ex.Message}",
+                    new Vector2(10, 100), Color.Red);
+            }
         }
     }
 

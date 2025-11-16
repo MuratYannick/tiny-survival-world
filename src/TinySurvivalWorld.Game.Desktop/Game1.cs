@@ -225,9 +225,18 @@ public class Game1 : XnaGame
         // Légende des terrains (sans transformation de caméra)
         if (_showLegend && _legendRenderer != null)
         {
-            _spriteBatch.Begin();
-            _legendRenderer.Draw(_spriteBatch, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
-            _spriteBatch.End();
+            try
+            {
+                _spriteBatch.Begin();
+                _legendRenderer.Draw(_spriteBatch, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
+                _spriteBatch.End();
+            }
+            catch (Exception ex)
+            {
+                // Si erreur lors de l'affichage de la légende, désactiver et continuer
+                _showLegend = false;
+                System.Diagnostics.Debug.WriteLine($"Erreur lors de l'affichage de la légende: {ex.Message}");
+            }
         }
 
         base.Draw(gameTime);
