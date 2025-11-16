@@ -103,6 +103,26 @@ Démarrer la phase 3 en analysant le système actuel et en planifiant les améli
    - ✅ Build réussi : 0 erreurs, 0 avertissements
    - ✅ La légende devrait maintenant s'afficher correctement avec la touche L
 
+9. **Système de configuration du monde (DevMode)**
+   - ✅ WorldGenerationConfig créé avec 9 paramètres ajustables :
+     - Elevation : Octaves, Persistence, Lacunarity
+     - Moisture : Octaves, Persistence, Lacunarity
+     - Temperature : Octaves, Persistence, Lacunarity
+   - ✅ WorldGenerator modifié pour accepter WorldGenerationConfig
+   - ✅ ChunkManager modifié pour passer la config au generator
+   - ✅ appsettings.json enrichi avec GameSettings:DevMode
+   - ✅ ConfigurationScreen créé avec :
+     - Split screen : preview à gauche, contrôles à droite
+     - Preview carte en temps réel avec zoom (+/-)
+     - Navigation clavier (Haut/Bas) et ajustement (Gauche/Droite)
+     - Saisie du seed (optionnel, aléatoire si vide)
+     - Bouton START (Enter) pour lancer le jeu
+     - Reset config (touche R)
+   - ✅ Game1 modifié avec gestion d'état (Configuration vs Jeu)
+   - ✅ Si DevMode=true : écran de configuration au démarrage
+   - ✅ Si DevMode=false : jeu lance directement avec config par défaut
+   - ✅ Build réussi : 0 erreurs, 1 avertissement mineur
+
 #### Tâches à réaliser
 
 ### Priorité Haute

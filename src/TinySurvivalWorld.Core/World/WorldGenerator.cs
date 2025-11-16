@@ -12,11 +12,13 @@ public class WorldGenerator
     private readonly SimplexNoise _temperatureNoise;
     private readonly long _seed;
     private readonly Random _random;
+    private readonly WorldGenerationConfig _config;
 
-    public WorldGenerator(long seed)
+    public WorldGenerator(long seed, WorldGenerationConfig? config = null)
     {
         _seed = seed;
         _random = new Random((int)seed);
+        _config = config ?? WorldGenerationConfig.Default;
 
         // Créer 3 générateurs de bruit avec des seeds différentes
         _elevationNoise = new SimplexNoise(seed);
@@ -63,27 +65,27 @@ public class WorldGenerator
         float elevation = _elevationNoise.GenerateNormalized(
             worldX * WorldConstants.ElevationScale,
             worldY * WorldConstants.ElevationScale,
-            WorldConstants.NoiseOctaves,
-            WorldConstants.NoisePersistence,
-            WorldConstants.NoiseLacunarity
+            _config.ElevationOctaves,
+            _config.ElevationPersistence,
+            _config.ElevationLacunarity
         );
 
         // Générer l'humidité
         float moisture = _moistureNoise.GenerateNormalized(
             worldX * WorldConstants.MoistureScale,
             worldY * WorldConstants.MoistureScale,
-            WorldConstants.NoiseOctaves,
-            WorldConstants.NoisePersistence,
-            WorldConstants.NoiseLacunarity
+            _config.MoistureOctaves,
+            _config.MoisturePersistence,
+            _config.MoistureLacunarity
         );
 
         // Générer la température (affectée par la latitude et l'élévation)
         float baseTemp = _temperatureNoise.GenerateNormalized(
             worldX * WorldConstants.TemperatureScale,
             worldY * WorldConstants.TemperatureScale,
-            WorldConstants.NoiseOctaves,
-            WorldConstants.NoisePersistence,
-            WorldConstants.NoiseLacunarity
+            _config.TemperatureOctaves,
+            _config.TemperaturePersistence,
+            _config.TemperatureLacunarity
         );
 
         // La température diminue avec l'élévation et la latitude

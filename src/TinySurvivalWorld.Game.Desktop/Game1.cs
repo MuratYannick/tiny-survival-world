@@ -1,9 +1,11 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Extensions.Configuration;
 using TinySurvivalWorld.Core.World;
 using TinySurvivalWorld.Game.Desktop.Entities;
 using TinySurvivalWorld.Game.Desktop.Rendering;
+using TinySurvivalWorld.Game.Desktop.Screens;
 using TinySurvivalWorld.Game.Desktop.Utilities;
 using XnaGame = Microsoft.Xna.Framework.Game;
 
@@ -14,9 +16,16 @@ public class Game1 : XnaGame
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch = null!;
 
+    // Configuration
+    private bool _devMode = false;
+    private bool _inConfigScreen = false;
+    private ConfigurationScreen? _configScreen;
+
     // Système monde
     private ChunkManager? _chunkManager;
     private TileRenderer? _tileRenderer;
+    private WorldGenerationConfig? _worldConfig;
+    private long _worldSeed;
 
     // Personnage joueur
     private PlayerCharacter? _player;
@@ -56,17 +65,63 @@ public class Game1 : XnaGame
         _graphics.PreferredBackBufferHeight = 720;
         _graphics.ApplyChanges();
 
-        GameLogger.Info("Game1 constructor - Terminé");
+        // Charger la configuration
+        LoadConfiguration();
+
+        GameLogger.Info($"Game1 constructor - Terminé (DevMode={_devMode})");
+    }
+
+    private void LoadConfiguration()
+    {
+        try
+        {
+            var config = new ConfigurationBuilder()
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
+                .Build();
+
+            _devMode = config.GetValue<bool>("GameSettings:DevMode", false);
+            GameLogger.Info($"Configuration chargee - DevMode={_devMode}");
+        }
+        catch (Exception ex)
+        {
+            GameLogger.Error("Erreur lors du chargement de la configuration", ex);
+            _devMode = false;
+        }
     }
 
     protected override void Initialize()
     {
+        if (_devMode)
+        {
+            // Mode développement : afficher l'ecran de configuration
+            _inConfigScreen = true;
+            _configScreen = new ConfigurationScreen(GraphicsDevice);
+            GameLogger.Info("Initialize - Mode configuration (DevMode)");
+        }
+        else
+        {
+            // Mode normal : démarrer le jeu directement avec config par défaut
+            StartGame(DateTime.UtcNow.Ticks, WorldGenerationConfig.Default);
+            GameLogger.Info("Initialize - Mode jeu direct");
+        }
+
+        base.Initialize();
+    }
+
+    private void StartGame(long seed, WorldGenerationConfig config)
+    {
+        GameLogger.Info($"StartGame - Seed={seed}");
+
+        _worldSeed = seed;
+        _worldConfig = config;
+        _inConfigScreen = false;
+
         // Créer la caméra
         _camera = new Camera2D(GraphicsDevice.Viewport);
 
-        // Créer le monde avec une seed aléatoire (ou fixe pour tests)
-        long worldSeed = 12345; // Seed fixe pour le développement
-        _chunkManager = new ChunkManager(worldSeed);
+        // Créer le monde avec la config
+        _chunkManager = new ChunkManager(_worldSeed, _worldConfig);
 
         // Trouver un point de spawn valide
         var spawnPoint = _chunkManager.FindSpawnPoint();
@@ -82,14 +137,24 @@ public class Game1 : XnaGame
         _camera.CenterOn(_player.Position);
 
         // Précharger les chunks autour du spawn
-        _chunkManager.LoadChunksAroundPosition(spawnPoint.x, spawnPoint.y);
+        _chunkManager.LoadChunksAroundPosition((int)spawnPoint.x, (int)spawnPoint.y);
 
-        base.Initialize();
+        GameLogger.Info($"StartGame - Spawn point: ({spawnPoint.x}, {spawnPoint.y})");
     }
 
     protected override void LoadContent()
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
+
+        // Charger la font pour le debug, la légende et la config
+        try
+        {
+            _debugFont = Content.Load<SpriteFont>("DebugFont");
+        }
+        catch
+        {
+            // La font n'est pas obligatoire, on continue sans
+        }
 
         // Créer les renderers
         if (_chunkManager != null)
@@ -99,16 +164,12 @@ public class Game1 : XnaGame
 
         _playerRenderer = new PlayerRenderer(GraphicsDevice);
         _legendRenderer = new LegendRenderer(GraphicsDevice);
+        _legendRenderer.SetFont(_debugFont);
 
-        // Charger la font pour le debug et la légende
-        try
+        // Passer la font au ConfigurationScreen si en mode config
+        if (_configScreen != null)
         {
-            _debugFont = Content.Load<SpriteFont>("DebugFont");
-            _legendRenderer.SetFont(_debugFont);
-        }
-        catch
-        {
-            // La font n'est pas obligatoire, on continue sans
+            _configScreen.SetFont(_debugFont);
         }
     }
 
@@ -120,29 +181,51 @@ public class Game1 : XnaGame
         if (keyboardState.IsKeyDown(Keys.Escape))
             Exit();
 
-        // Toggle debug info
-        if (keyboardState.IsKeyDown(Keys.F1) && !_previousKeyboardState.IsKeyDown(Keys.F1))
-            _showDebugInfo = !_showDebugInfo;
-
-        // Toggle chunk grid
-        if (keyboardState.IsKeyDown(Keys.F2) && !_previousKeyboardState.IsKeyDown(Keys.F2))
-            _showChunkGrid = !_showChunkGrid;
-
-        // Toggle free camera mode
-        if (keyboardState.IsKeyDown(Keys.F3) && !_previousKeyboardState.IsKeyDown(Keys.F3))
-            _freeCameraMode = !_freeCameraMode;
-
-        // Toggle legend
-        if (keyboardState.IsKeyDown(Keys.L) && !_previousKeyboardState.IsKeyDown(Keys.L))
+        if (_inConfigScreen && _configScreen != null)
         {
-            _showLegend = !_showLegend;
-            GameLogger.Info($"Toggle legend - Nouvelle valeur: {_showLegend}");
+            // Mode configuration
+            _configScreen.Update(gameTime, keyboardState);
+
+            // Check si on doit démarrer le jeu
+            if (_configScreen.ShouldStartGame(keyboardState, _previousKeyboardState))
+            {
+                var (seed, config) = _configScreen.GetGameSettings();
+                GameLogger.Info($"Configuration terminee - Demarrage du jeu avec seed={seed}");
+                StartGame(seed, config);
+
+                // Recreer les renderers pour le monde
+                if (_chunkManager != null)
+                {
+                    _tileRenderer = new TileRenderer(GraphicsDevice, _chunkManager);
+                }
+            }
         }
-
-        // Gestion de la caméra
-        if (_camera != null)
+        else
         {
-            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            // Mode jeu normal
+            // Toggle debug info
+            if (keyboardState.IsKeyDown(Keys.F1) && !_previousKeyboardState.IsKeyDown(Keys.F1))
+                _showDebugInfo = !_showDebugInfo;
+
+            // Toggle chunk grid
+            if (keyboardState.IsKeyDown(Keys.F2) && !_previousKeyboardState.IsKeyDown(Keys.F2))
+                _showChunkGrid = !_showChunkGrid;
+
+            // Toggle free camera mode
+            if (keyboardState.IsKeyDown(Keys.F3) && !_previousKeyboardState.IsKeyDown(Keys.F3))
+                _freeCameraMode = !_freeCameraMode;
+
+            // Toggle legend
+            if (keyboardState.IsKeyDown(Keys.L) && !_previousKeyboardState.IsKeyDown(Keys.L))
+            {
+                _showLegend = !_showLegend;
+                GameLogger.Info($"Toggle legend - Nouvelle valeur: {_showLegend}");
+            }
+
+            // Gestion de la caméra
+            if (_camera != null)
+            {
+                float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             if (_freeCameraMode)
             {
@@ -188,7 +271,8 @@ public class Game1 : XnaGame
                 int referenceTileY = (int)(referencePosition.Y / WorldConstants.TileSize);
                 _chunkManager.LoadChunksAroundPosition(referenceTileX, referenceTileY);
             }
-        }
+            }
+        } // Fin du else (mode jeu normal)
 
         _previousKeyboardState = keyboardState;
 
@@ -199,60 +283,71 @@ public class Game1 : XnaGame
     {
         GraphicsDevice.Clear(new Color(20, 20, 30)); // Fond sombre
 
-        if (_spriteBatch == null || _camera == null || _tileRenderer == null)
+        if (_spriteBatch == null)
             return;
 
-        // Dessiner le monde avec la transformation de la caméra
-        _spriteBatch.Begin(
-            sortMode: SpriteSortMode.Deferred,
-            blendState: BlendState.AlphaBlend,
-            samplerState: SamplerState.PointClamp, // Pixel art
-            transformMatrix: _camera.TransformMatrix
-        );
-
-        _tileRenderer.Draw(_spriteBatch, _camera);
-
-        if (_showChunkGrid)
+        if (_inConfigScreen && _configScreen != null)
         {
-            _tileRenderer.DrawChunkGrid(_spriteBatch, _camera);
+            // Mode configuration - afficher l'ecran de config
+            _spriteBatch.Begin();
+            _configScreen.Draw(_spriteBatch, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
+            _spriteBatch.End();
         }
-
-        // Dessiner le personnage joueur
-        if (_player != null && _playerRenderer != null)
+        else if (_camera != null && _tileRenderer != null)
         {
-            _playerRenderer.Draw(_spriteBatch, _player);
-        }
+            // Mode jeu normal - afficher le monde
+            // Dessiner le monde avec la transformation de la caméra
+            _spriteBatch.Begin(
+                sortMode: SpriteSortMode.Deferred,
+                blendState: BlendState.AlphaBlend,
+                samplerState: SamplerState.PointClamp, // Pixel art
+                transformMatrix: _camera.TransformMatrix
+            );
 
-        _spriteBatch.End();
+            _tileRenderer.Draw(_spriteBatch, _camera);
 
-        // Debug info (sans transformation de caméra)
-        if (_showDebugInfo)
-        {
-            DrawDebugInfo(gameTime);
-        }
-
-        // Légende des terrains (sans transformation de caméra)
-        if (_showLegend && _legendRenderer != null)
-        {
-            try
+            if (_showChunkGrid)
             {
-                GameLogger.Info("Game1.Draw() - Début affichage légende");
-                _spriteBatch.Begin();
-                GameLogger.Info("Game1.Draw() - SpriteBatch.Begin() appelé");
-
-                _legendRenderer.Draw(_spriteBatch, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
-                GameLogger.Info("Game1.Draw() - LegendRenderer.Draw() terminé");
-
-                _spriteBatch.End();
-                GameLogger.Info("Game1.Draw() - SpriteBatch.End() appelé");
+                _tileRenderer.DrawChunkGrid(_spriteBatch, _camera);
             }
-            catch (Exception ex)
+
+            // Dessiner le personnage joueur
+            if (_player != null && _playerRenderer != null)
             {
-                // Si erreur lors de l'affichage de la légende, désactiver et continuer
-                GameLogger.Error("Game1.Draw() - ERREUR lors de l'affichage de la légende", ex);
-                _showLegend = false;
+                _playerRenderer.Draw(_spriteBatch, _player);
             }
-        }
+
+            _spriteBatch.End();
+
+            // Debug info (sans transformation de caméra)
+            if (_showDebugInfo)
+            {
+                DrawDebugInfo(gameTime);
+            }
+
+            // Légende des terrains (sans transformation de caméra)
+            if (_showLegend && _legendRenderer != null)
+            {
+                try
+                {
+                    GameLogger.Info("Game1.Draw() - Début affichage légende");
+                    _spriteBatch.Begin();
+                    GameLogger.Info("Game1.Draw() - SpriteBatch.Begin() appelé");
+
+                    _legendRenderer.Draw(_spriteBatch, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
+                    GameLogger.Info("Game1.Draw() - LegendRenderer.Draw() terminé");
+
+                    _spriteBatch.End();
+                    GameLogger.Info("Game1.Draw() - SpriteBatch.End() appelé");
+                }
+                catch (Exception ex)
+                {
+                    // Si erreur lors de l'affichage de la légende, désactiver et continuer
+                    GameLogger.Error("Game1.Draw() - ERREUR lors de l'affichage de la légende", ex);
+                    _showLegend = false;
+                }
+            }
+        } // Fin du else if (mode jeu normal)
 
         base.Draw(gameTime);
     }
@@ -334,6 +429,7 @@ public class Game1 : XnaGame
             _tileRenderer?.Dispose();
             _playerRenderer?.Dispose();
             _legendRenderer?.Dispose();
+            _configScreen?.Dispose();
         }
 
         base.Dispose(disposing);
