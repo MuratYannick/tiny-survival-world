@@ -139,6 +139,19 @@ Démarrer la phase 3 en analysant le système actuel et en planifiant les améli
    - ✅ Warning CS0649 corrigé - _currentSeed initialisé dans constructeur
    - ✅ Build réussi : 0 erreurs, 0 avertissements
 
+12. **Paramètres Scale et Offset pour génération de monde**
+   - ✅ 6 nouveaux paramètres ajoutés : Scale + Offset pour Elevation, Moisture, Temperature
+   - ✅ **Scale** : Contrôle la taille des biomes (0.001 à 0.1, step=0.001)
+     - Plus petit = biomes plus petits, transitions plus fréquentes
+     - Plus grand = biomes plus étendus, transitions plus espacées
+   - ✅ **Offset** : Décale les seuils de génération (-0.5 à +0.5, step=0.05)
+     - Offset positif : monte l'ensemble des valeurs
+     - Offset négatif : descend l'ensemble des valeurs
+   - ✅ WorldGenerationConfig enrichi avec valeurs par défaut
+   - ✅ WorldGenerator modifié : utilise config au lieu de WorldConstants
+   - ✅ ConfigurationScreen : 9 params → 15 params configurables
+   - ✅ Build réussi : 0 erreurs, 0 avertissements
+
 #### Tâches à réaliser
 
 ### Priorité Haute
