@@ -28,7 +28,7 @@ public static class TileColors
             TileType.SnowPeak => new Color(240, 240, 250),      // Blanc neige
             TileType.Swamp => new Color(60, 80, 50),            // Vert-brun marécage
             TileType.Ruins => new Color(100, 80, 70),           // Gris-brun ruines
-            TileType.Radioactive => new Color(150, 200, 50),    // Vert radioactif
+            TileType.Toxic => new Color(150, 180, 40),          // Vert-jaune toxique
             _ => Color.Magenta                                  // Erreur (rose criard)
         };
     }

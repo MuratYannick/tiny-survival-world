@@ -65,7 +65,7 @@ public class Tile
         TileType.Hill => 1.4f,
         TileType.Swamp => 2.0f,
         TileType.Ruins => 1.2f,
-        TileType.Radioactive => 1.5f,
+        TileType.Toxic => 1.5f,
         _ => float.MaxValue // Non traversable
     };
 

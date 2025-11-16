@@ -66,7 +66,7 @@ public enum TileType : byte
     Ruins = 11,
 
     /// <summary>
-    /// Zone radioactive/contaminée.
+    /// Zone toxique/contaminée (déchets toxiques, pollution chimique).
     /// </summary>
-    Radioactive = 12
+    Toxic = 12
 }

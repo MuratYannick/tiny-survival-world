@@ -25,6 +25,10 @@ public class Game1 : XnaGame
     private Camera2D? _camera;
     private bool _freeCameraMode = false; // false = suit le joueur, true = caméra libre
 
+    // Légende
+    private LegendRenderer? _legendRenderer;
+    private bool _showLegend = false;
+
     // Input
     private KeyboardState _previousKeyboardState;
     private const float CameraSpeed = 300f; // Pixels par seconde
@@ -88,11 +92,13 @@ public class Game1 : XnaGame
         }
 
         _playerRenderer = new PlayerRenderer(GraphicsDevice);
+        _legendRenderer = new LegendRenderer(GraphicsDevice);
 
-        // Charger la font pour le debug
+        // Charger la font pour le debug et la légende
         try
         {
             _debugFont = Content.Load<SpriteFont>("DebugFont");
+            _legendRenderer.SetFont(_debugFont);
         }
         catch
         {
@@ -119,6 +125,10 @@ public class Game1 : XnaGame
         // Toggle free camera mode
         if (keyboardState.IsKeyDown(Keys.F3) && !_previousKeyboardState.IsKeyDown(Keys.F3))
             _freeCameraMode = !_freeCameraMode;
+
+        // Toggle legend
+        if (keyboardState.IsKeyDown(Keys.F4) && !_previousKeyboardState.IsKeyDown(Keys.F4))
+            _showLegend = !_showLegend;
 
         // Gestion de la caméra
         if (_camera != null)
@@ -212,6 +222,14 @@ public class Game1 : XnaGame
             DrawDebugInfo(gameTime);
         }
 
+        // Légende des terrains (sans transformation de caméra)
+        if (_showLegend && _legendRenderer != null)
+        {
+            _spriteBatch.Begin();
+            _legendRenderer.Draw(_spriteBatch, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
+            _spriteBatch.End();
+        }
+
         base.Draw(gameTime);
     }
 
@@ -229,7 +247,7 @@ public class Game1 : XnaGame
         var debugTexture = new Texture2D(GraphicsDevice, 1, 1);
         debugTexture.SetData(new[] { new Color(0, 0, 0, 150) });
 
-        _spriteBatch.Draw(debugTexture, new Rectangle(5, 5, 400, 220), Color.White);
+        _spriteBatch.Draw(debugTexture, new Rectangle(5, 5, 400, 240), Color.White);
 
         // Afficher les infos textuelles (si on a une font)
         if (_debugFont != null)
@@ -265,7 +283,9 @@ public class Game1 : XnaGame
                 DrawDebugText("Controls: ZQSD/Arrows=Move, +/-=Zoom", 10, y);
             }
             y += lineHeight;
-            DrawDebugText("F1=Debug, F2=Grid, F3=Free Cam, ESC=Quit", 10, y);
+            DrawDebugText("F1=Debug, F2=Grid, F3=Free Cam, F4=Legend", 10, y);
+            y += lineHeight;
+            DrawDebugText("ESC=Quit", 10, y);
         }
 
         _spriteBatch.End();
@@ -286,6 +306,7 @@ public class Game1 : XnaGame
         {
             _tileRenderer?.Dispose();
             _playerRenderer?.Dispose();
+            _legendRenderer?.Dispose();
         }
 
         base.Dispose(disposing);
