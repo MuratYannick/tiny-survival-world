@@ -19,7 +19,7 @@ public class ConfigurationScreen
     // Configuration
     private WorldGenerationConfig _config;
     private string _seedInput = "";
-    private long? _currentSeed;
+    private long _currentSeed;
 
     // UI State
     private int _selectedParam = 0;
@@ -37,10 +37,17 @@ public class ConfigurationScreen
 
     private KeyboardState _previousKeyboardState;
 
+    // Input throttling for value adjustment
+    private double _lastAdjustmentTime = 0;
+    private const double AdjustmentCooldown = 0.15; // 150ms entre chaque ajustement
+
     public ConfigurationScreen(GraphicsDevice graphicsDevice)
     {
         _graphicsDevice = graphicsDevice;
         _config = WorldGenerationConfig.Default.Clone();
+
+        // Generer un seed aleatoire initial (fixe pour cette session de configuration)
+        _currentSeed = DateTime.UtcNow.Ticks;
 
         // Definition des parametres ajustables
         _params = new[]
@@ -75,6 +82,8 @@ public class ConfigurationScreen
 
     public void Update(GameTime gameTime, KeyboardState keyboardState)
     {
+        double currentTime = gameTime.TotalGameTime.TotalSeconds;
+
         // Navigation verticale
         if (keyboardState.IsKeyDown(Keys.Up) && !_previousKeyboardState.IsKeyDown(Keys.Up))
         {
@@ -88,19 +97,24 @@ public class ConfigurationScreen
         // Ajustement des valeurs ou saisie seed
         if (_selectedParam < _params.Length)
         {
-            // Parametres de generation
+            // Parametres de generation - avec throttling pour eviter ajustement trop rapide
             var param = _params[_selectedParam];
             bool changed = false;
 
-            if (keyboardState.IsKeyDown(Keys.Left))
+            if (currentTime - _lastAdjustmentTime >= AdjustmentCooldown)
             {
-                param.Decrease();
-                changed = true;
-            }
-            else if (keyboardState.IsKeyDown(Keys.Right))
-            {
-                param.Increase();
-                changed = true;
+                if (keyboardState.IsKeyDown(Keys.Left))
+                {
+                    param.Decrease();
+                    changed = true;
+                    _lastAdjustmentTime = currentTime;
+                }
+                else if (keyboardState.IsKeyDown(Keys.Right))
+                {
+                    param.Increase();
+                    changed = true;
+                    _lastAdjustmentTime = currentTime;
+                }
             }
 
             if (changed)
@@ -128,6 +142,13 @@ public class ConfigurationScreen
         if (keyboardState.IsKeyDown(Keys.R) && !_previousKeyboardState.IsKeyDown(Keys.R))
         {
             _config = WorldGenerationConfig.Default.Clone();
+            RegeneratePreview();
+        }
+
+        // Touche S pour generer un nouveau seed aleatoire
+        if (keyboardState.IsKeyDown(Keys.S) && !_previousKeyboardState.IsKeyDown(Keys.S))
+        {
+            _currentSeed = DateTime.UtcNow.Ticks;
             RegeneratePreview();
         }
 
@@ -171,8 +192,8 @@ public class ConfigurationScreen
 
     private void RegeneratePreview()
     {
-        long seed = _currentSeed ?? DateTime.UtcNow.Ticks;
-        _previewChunkManager = new ChunkManager(seed, _config.Clone());
+        // Utiliser le seed actuel (fixe sauf si regenere par touche S)
+        _previewChunkManager = new ChunkManager(_currentSeed, _config.Clone());
 
         // Precharger quelques chunks pour la preview
         for (int x = -2; x <= 2; x++)
@@ -207,8 +228,8 @@ public class ConfigurationScreen
         if (_previewChunkManager == null || _pixelTexture == null)
             return;
 
-        // Dessiner une zone de preview centree
-        int tileSize = (int)(WorldConstants.TileSize * _previewZoom);
+        // Dessiner une zone de preview centree - tiles 2x plus petites pour voir plus de terrain
+        int tileSize = (int)(WorldConstants.TileSize * _previewZoom / 2f);
         int centerX = x + width / 2;
         int centerY = y + height / 2;
 
@@ -247,12 +268,14 @@ public class ConfigurationScreen
         if (_font == null || _pixelTexture == null)
             return;
 
+        // Decalage vers la droite pour eviter chevaucher la preview
+        int offsetX = 30;
         int currentY = y + 20;
         int lineHeight = 30;
 
         // Titre
         spriteBatch.DrawString(_font, "=== WORLD GENERATION CONFIG ===",
-            new Vector2(x + 10, currentY), Color.Yellow);
+            new Vector2(x + offsetX, currentY), Color.Yellow);
         currentY += lineHeight + 10;
 
         // Parametres
@@ -265,7 +288,7 @@ public class ConfigurationScreen
             string valueText = param.GetFormattedValue();
             string line = $"{(isSelected ? ">" : " ")} {param.Name}: {valueText}";
 
-            spriteBatch.DrawString(_font, line, new Vector2(x + 10, currentY), textColor);
+            spriteBatch.DrawString(_font, line, new Vector2(x + offsetX, currentY), textColor);
             currentY += lineHeight;
         }
 
@@ -276,35 +299,39 @@ public class ConfigurationScreen
         var seedColor = seedSelected ? Color.Cyan : Color.White;
         string seedText = string.IsNullOrEmpty(_seedInput) ? "(random)" : _seedInput;
         spriteBatch.DrawString(_font, $"{(seedSelected ? ">" : " ")} Seed: {seedText}",
-            new Vector2(x + 10, currentY), seedColor);
+            new Vector2(x + offsetX, currentY), seedColor);
         currentY += lineHeight;
 
         // Bouton valider
         bool startSelected = (_selectedParam == _params.Length + 1);
         var startColor = startSelected ? Color.Green : Color.White;
         spriteBatch.DrawString(_font, $"{(startSelected ? ">" : " ")} [ START GAME ]",
-            new Vector2(x + 10, currentY), startColor);
+            new Vector2(x + offsetX, currentY), startColor);
         currentY += lineHeight + 20;
 
         // Instructions
         spriteBatch.DrawString(_font, "Controls:",
-            new Vector2(x + 10, currentY), Color.Gray);
+            new Vector2(x + offsetX, currentY), Color.Gray);
         currentY += lineHeight;
 
         spriteBatch.DrawString(_font, "  Up/Down: Navigate",
-            new Vector2(x + 10, currentY), Color.Gray);
+            new Vector2(x + offsetX, currentY), Color.Gray);
         currentY += lineHeight - 5;
 
         spriteBatch.DrawString(_font, "  Left/Right: Adjust value",
-            new Vector2(x + 10, currentY), Color.Gray);
+            new Vector2(x + offsetX, currentY), Color.Gray);
         currentY += lineHeight - 5;
 
         spriteBatch.DrawString(_font, "  R: Reset to default",
-            new Vector2(x + 10, currentY), Color.Gray);
+            new Vector2(x + offsetX, currentY), Color.Gray);
+        currentY += lineHeight - 5;
+
+        spriteBatch.DrawString(_font, "  S: New random seed",
+            new Vector2(x + offsetX, currentY), Color.Gray);
         currentY += lineHeight - 5;
 
         spriteBatch.DrawString(_font, "  Enter: Start game",
-            new Vector2(x + 10, currentY), Color.Gray);
+            new Vector2(x + offsetX, currentY), Color.Gray);
     }
 
     public bool ShouldStartGame(KeyboardState keyboardState, KeyboardState previousKeyboardState)
