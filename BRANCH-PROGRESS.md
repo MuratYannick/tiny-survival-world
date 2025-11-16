@@ -141,14 +141,18 @@ Démarrer la phase 3 en analysant le système actuel et en planifiant les améli
 
 12. **Paramètres Scale et Offset pour génération de monde**
    - ✅ 6 nouveaux paramètres ajoutés : Scale + Offset pour Elevation, Moisture, Temperature
-   - ✅ **Scale** : Contrôle la taille des biomes (0.001 à 0.1, step=0.001)
-     - Plus petit = biomes plus petits, transitions plus fréquentes
-     - Plus grand = biomes plus étendus, transitions plus espacées
-   - ✅ **Offset** : Décale les seuils de génération (-0.5 à +0.5, step=0.05)
-     - Offset positif : monte l'ensemble des valeurs
-     - Offset négatif : descend l'ensemble des valeurs
-   - ✅ WorldGenerationConfig enrichi avec valeurs par défaut
-   - ✅ WorldGenerator modifié : utilise config au lieu de WorldConstants
+   - ✅ **Scale** (défaut 1.0) : Compresse/étend les valeurs autour du centre
+     - Scale < 1.0 : Compresse l'échelle (valeurs plus centrées)
+     - Scale > 1.0 : Étend l'échelle (valeurs plus extrêmes)
+     - Plage : 0.1 à 2.0, step 0.05
+   - ✅ **Offset** (défaut 0.5) : Centre de l'échelle de transformation
+     - Offset < 0.5 : Décale vers les valeurs basses
+     - Offset > 0.5 : Décale vers les valeurs hautes
+     - Plage : 0.0 à 1.0, step 0.05
+   - ✅ **Formule** : `transformedValue = offset + (rawValue - 0.5) * scale`
+   - ✅ Exemple : scale=0.5 compresse 0.15-0.9 vers 0.325-0.7
+   - ✅ WorldGenerationConfig avec valeurs par défaut correctes
+   - ✅ WorldGenerator : applique transformation après génération du bruit
    - ✅ ConfigurationScreen : 9 params → 15 params configurables
    - ✅ Build réussi : 0 erreurs, 0 avertissements
 
