@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TinySurvivalWorld.Core.World;
+using TinySurvivalWorld.Game.Desktop.Entities;
 using TinySurvivalWorld.Game.Desktop.Rendering;
 using XnaGame = Microsoft.Xna.Framework.Game;
 
@@ -16,8 +17,13 @@ public class Game1 : XnaGame
     private ChunkManager? _chunkManager;
     private TileRenderer? _tileRenderer;
 
+    // Personnage joueur
+    private PlayerCharacter? _player;
+    private PlayerRenderer? _playerRenderer;
+
     // Caméra
     private Camera2D? _camera;
+    private bool _freeCameraMode = false; // false = suit le joueur, true = caméra libre
 
     // Input
     private KeyboardState _previousKeyboardState;
@@ -52,10 +58,18 @@ public class Game1 : XnaGame
         long worldSeed = 12345; // Seed fixe pour le développement
         _chunkManager = new ChunkManager(worldSeed);
 
-        // Trouver un point de spawn valide et centrer la caméra dessus
+        // Trouver un point de spawn valide
         var spawnPoint = _chunkManager.FindSpawnPoint();
-        _camera.CenterOn(new Vector2(spawnPoint.x * WorldConstants.TileSize,
-                                      spawnPoint.y * WorldConstants.TileSize));
+        var spawnPosition = new Vector2(
+            spawnPoint.x * WorldConstants.TileSize + WorldConstants.TileSize / 2,
+            spawnPoint.y * WorldConstants.TileSize + WorldConstants.TileSize / 2
+        );
+
+        // Créer le personnage joueur au spawn point
+        _player = new PlayerCharacter(_chunkManager, spawnPosition);
+
+        // Centrer la caméra sur le joueur
+        _camera.CenterOn(_player.Position);
 
         // Précharger les chunks autour du spawn
         _chunkManager.LoadChunksAroundPosition(spawnPoint.x, spawnPoint.y);
@@ -67,11 +81,13 @@ public class Game1 : XnaGame
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-        // Créer le renderer
+        // Créer les renderers
         if (_chunkManager != null)
         {
             _tileRenderer = new TileRenderer(GraphicsDevice, _chunkManager);
         }
+
+        _playerRenderer = new PlayerRenderer(GraphicsDevice);
 
         // Charger la font pour le debug (optionnel, commenté si pas de font)
         // _debugFont = Content.Load<SpriteFont>("Fonts/DebugFont");
@@ -93,39 +109,60 @@ public class Game1 : XnaGame
         if (keyboardState.IsKeyDown(Keys.F2) && !_previousKeyboardState.IsKeyDown(Keys.F2))
             _showChunkGrid = !_showChunkGrid;
 
-        // Déplacement de la caméra (WASD ou flèches)
+        // Toggle free camera mode
+        if (keyboardState.IsKeyDown(Keys.F3) && !_previousKeyboardState.IsKeyDown(Keys.F3))
+            _freeCameraMode = !_freeCameraMode;
+
+        // Mettre à jour le personnage joueur
+        if (_player != null)
+        {
+            _player.Update(gameTime, keyboardState);
+        }
+
+        // Gestion de la caméra
         if (_camera != null)
         {
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            Vector2 movement = Vector2.Zero;
 
-            if (keyboardState.IsKeyDown(Keys.W) || keyboardState.IsKeyDown(Keys.Up))
-                movement.Y -= 1;
-            if (keyboardState.IsKeyDown(Keys.S) || keyboardState.IsKeyDown(Keys.Down))
-                movement.Y += 1;
-            if (keyboardState.IsKeyDown(Keys.A) || keyboardState.IsKeyDown(Keys.Left))
-                movement.X -= 1;
-            if (keyboardState.IsKeyDown(Keys.D) || keyboardState.IsKeyDown(Keys.Right))
-                movement.X += 1;
-
-            if (movement != Vector2.Zero)
+            if (_freeCameraMode)
             {
-                movement.Normalize();
-                _camera.Move(movement * CameraSpeed * deltaTime / _camera.Zoom);
+                // Mode caméra libre (WASD pour déplacer la caméra)
+                Vector2 movement = Vector2.Zero;
+
+                if (keyboardState.IsKeyDown(Keys.W) || keyboardState.IsKeyDown(Keys.Up))
+                    movement.Y -= 1;
+                if (keyboardState.IsKeyDown(Keys.S) || keyboardState.IsKeyDown(Keys.Down))
+                    movement.Y += 1;
+                if (keyboardState.IsKeyDown(Keys.A) || keyboardState.IsKeyDown(Keys.Left))
+                    movement.X -= 1;
+                if (keyboardState.IsKeyDown(Keys.D) || keyboardState.IsKeyDown(Keys.Right))
+                    movement.X += 1;
+
+                if (movement != Vector2.Zero)
+                {
+                    movement.Normalize();
+                    _camera.Move(movement * CameraSpeed * deltaTime / _camera.Zoom);
+                }
+            }
+            else if (_player != null)
+            {
+                // Mode suivi du joueur
+                _camera.CenterOn(_player.Position);
             }
 
-            // Zoom (Q/E)
+            // Zoom (Q/E) - fonctionne dans les deux modes
             if (keyboardState.IsKeyDown(Keys.Q))
                 _camera.Zoom -= ZoomSpeed * deltaTime;
             if (keyboardState.IsKeyDown(Keys.E))
                 _camera.Zoom += ZoomSpeed * deltaTime;
 
-            // Charger les chunks autour de la caméra
+            // Charger les chunks autour de la position de référence (joueur ou caméra)
             if (_chunkManager != null)
             {
-                int cameraTileX = (int)(_camera.Position.X / WorldConstants.TileSize);
-                int cameraTileY = (int)(_camera.Position.Y / WorldConstants.TileSize);
-                _chunkManager.LoadChunksAroundPosition(cameraTileX, cameraTileY);
+                Vector2 referencePosition = _freeCameraMode ? _camera.Position : (_player?.Position ?? _camera.Position);
+                int referenceTileX = (int)(referencePosition.X / WorldConstants.TileSize);
+                int referenceTileY = (int)(referencePosition.Y / WorldConstants.TileSize);
+                _chunkManager.LoadChunksAroundPosition(referenceTileX, referenceTileY);
             }
         }
 
@@ -156,6 +193,12 @@ public class Game1 : XnaGame
             _tileRenderer.DrawChunkGrid(_spriteBatch, _camera);
         }
 
+        // Dessiner le personnage joueur
+        if (_player != null && _playerRenderer != null)
+        {
+            _playerRenderer.Draw(_spriteBatch, _player);
+        }
+
         _spriteBatch.End();
 
         // Debug info (sans transformation de caméra)
@@ -181,16 +224,25 @@ public class Game1 : XnaGame
         var debugTexture = new Texture2D(GraphicsDevice, 1, 1);
         debugTexture.SetData(new[] { new Color(0, 0, 0, 150) });
 
-        _spriteBatch.Draw(debugTexture, new Rectangle(5, 5, 400, 180), Color.White);
+        _spriteBatch.Draw(debugTexture, new Rectangle(5, 5, 400, 220), Color.White);
 
         // Afficher les infos textuelles (si on a une font)
         if (_debugFont != null)
         {
             DrawDebugText($"FPS: {1.0f / gameTime.ElapsedGameTime.TotalSeconds:F0}", 10, y);
             y += lineHeight;
+
+            if (_player != null)
+            {
+                DrawDebugText($"Player: {_player.Position.X:F0}, {_player.Position.Y:F0}", 10, y);
+                y += lineHeight;
+            }
+
             DrawDebugText($"Camera: {_camera.Position.X:F0}, {_camera.Position.Y:F0}", 10, y);
             y += lineHeight;
             DrawDebugText($"Zoom: {_camera.Zoom:F2}x", 10, y);
+            y += lineHeight;
+            DrawDebugText($"Camera Mode: {(_freeCameraMode ? "FREE" : "FOLLOW PLAYER")}", 10, y);
             y += lineHeight;
             DrawDebugText($"Chunks loaded: {_chunkManager.LoadedChunkCount}", 10, y);
             y += lineHeight;
@@ -198,9 +250,9 @@ public class Game1 : XnaGame
             y += lineHeight;
             DrawDebugText($"Tiles rendered: {_tileRenderer.TilesRenderedLastFrame}", 10, y);
             y += lineHeight;
-            DrawDebugText("Controls: WASD/Arrows=Move, Q/E=Zoom", 10, y);
+            DrawDebugText("Controls: ZQSD=Move Player, Q/E=Zoom", 10, y);
             y += lineHeight;
-            DrawDebugText("F1=Toggle Debug, F2=Toggle Grid, ESC=Quit", 10, y);
+            DrawDebugText("F1=Debug, F2=Grid, F3=Free Cam, ESC=Quit", 10, y);
         }
 
         _spriteBatch.End();
@@ -220,6 +272,7 @@ public class Game1 : XnaGame
         if (disposing)
         {
             _tileRenderer?.Dispose();
+            _playerRenderer?.Dispose();
         }
 
         base.Dispose(disposing);
