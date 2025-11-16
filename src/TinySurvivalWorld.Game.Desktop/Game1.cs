@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using TinySurvivalWorld.Core.World;
 using TinySurvivalWorld.Game.Desktop.Entities;
 using TinySurvivalWorld.Game.Desktop.Rendering;
+using TinySurvivalWorld.Game.Desktop.Utilities;
 using XnaGame = Microsoft.Xna.Framework.Game;
 
 namespace TinySurvivalWorld.Game.Desktop;
@@ -43,6 +44,9 @@ public class Game1 : XnaGame
 
     public Game1()
     {
+        GameLogger.Info("=== TINY SURVIVAL WORLD - DÉMARRAGE ===");
+        GameLogger.Info($"Fichier de log: {GameLogger.GetLogFilePath()}");
+
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
@@ -51,6 +55,8 @@ public class Game1 : XnaGame
         _graphics.PreferredBackBufferWidth = 1280;
         _graphics.PreferredBackBufferHeight = 720;
         _graphics.ApplyChanges();
+
+        GameLogger.Info("Game1 constructor - Terminé");
     }
 
     protected override void Initialize()
@@ -128,7 +134,10 @@ public class Game1 : XnaGame
 
         // Toggle legend
         if (keyboardState.IsKeyDown(Keys.L) && !_previousKeyboardState.IsKeyDown(Keys.L))
+        {
             _showLegend = !_showLegend;
+            GameLogger.Info($"Toggle legend - Nouvelle valeur: {_showLegend}");
+        }
 
         // Gestion de la caméra
         if (_camera != null)
@@ -227,15 +236,21 @@ public class Game1 : XnaGame
         {
             try
             {
+                GameLogger.Info("Game1.Draw() - Début affichage légende");
                 _spriteBatch.Begin();
+                GameLogger.Info("Game1.Draw() - SpriteBatch.Begin() appelé");
+
                 _legendRenderer.Draw(_spriteBatch, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
+                GameLogger.Info("Game1.Draw() - LegendRenderer.Draw() terminé");
+
                 _spriteBatch.End();
+                GameLogger.Info("Game1.Draw() - SpriteBatch.End() appelé");
             }
             catch (Exception ex)
             {
                 // Si erreur lors de l'affichage de la légende, désactiver et continuer
+                GameLogger.Error("Game1.Draw() - ERREUR lors de l'affichage de la légende", ex);
                 _showLegend = false;
-                System.Diagnostics.Debug.WriteLine($"Erreur lors de l'affichage de la légende: {ex.Message}");
             }
         }
 
@@ -295,6 +310,9 @@ public class Game1 : XnaGame
             DrawDebugText("F1=Debug, F2=Grid, F3=Free Cam, L=Legend", 10, y);
             y += lineHeight;
             DrawDebugText("ESC=Quit", 10, y);
+            y += lineHeight;
+            y += lineHeight;
+            DrawDebugText($"Log: {GameLogger.GetLogFilePath()}", 10, y);
         }
 
         _spriteBatch.End();

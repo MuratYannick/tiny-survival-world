@@ -81,6 +81,15 @@ Démarrer la phase 3 en analysant le système actuel et en planifiant les améli
    - ✅ Clean build complet effectué
    - ✅ Le jeu ne devrait plus crasher, mais afficher l'erreur à l'écran
 
+7. **Système de logging complet pour diagnostic**
+   - ✅ GameLogger créé (Utilities/GameLogger.cs)
+   - ✅ Logs écrits dans fichier : %LocalAppData%/TinySurvivalWorld/game.log
+   - ✅ Logs détaillés dans LegendRenderer.Draw() (chaque étape)
+   - ✅ Logs détaillés dans Game1 (toggle legend, affichage)
+   - ✅ Chemin du fichier de log affiché dans debug overlay
+   - ✅ Logs avec timestamp, niveau (INFO/WARNING/ERROR), et stack trace pour exceptions
+   - ✅ Build réussi : 0 erreurs, 0 avertissements
+
 #### Tâches à réaliser
 
 ### Priorité Haute

@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using TinySurvivalWorld.Core.Enums;
 using TinySurvivalWorld.Core.World;
+using TinySurvivalWorld.Game.Desktop.Utilities;
 
 namespace TinySurvivalWorld.Game.Desktop.Rendering;
 
@@ -47,14 +48,23 @@ public class LegendRenderer
     /// </summary>
     public void Draw(SpriteBatch spriteBatch, int screenWidth, int screenHeight)
     {
+        GameLogger.Info("LegendRenderer.Draw() - Début");
+
         if (_pixelTexture == null)
+        {
+            GameLogger.Warning("LegendRenderer.Draw() - _pixelTexture est null");
             return;
+        }
 
         try
         {
+            GameLogger.Info("LegendRenderer.Draw() - Récupération des types de terrains");
             // Calculer la hauteur nécessaire pour la légende
             var terrainTypes = System.Enum.GetValues<TileType>();
+            GameLogger.Info($"LegendRenderer.Draw() - {terrainTypes.Length} types de terrains trouvés");
+
             int legendHeight = Padding * 2 + 30 + (terrainTypes.Length * LineHeight);
+            GameLogger.Info($"LegendRenderer.Draw() - Hauteur légende calculée: {legendHeight}");
 
         // Position de la légende (coin supérieur droit)
         int legendX = screenWidth - LegendWidth - Padding;
@@ -77,9 +87,13 @@ public class LegendRenderer
         }
         currentY += 30;
 
+        GameLogger.Info("LegendRenderer.Draw() - Début de la boucle foreach");
         // Afficher chaque type de terrain
+        int terrainIndex = 0;
         foreach (TileType tileType in terrainTypes)
         {
+            GameLogger.Info($"LegendRenderer.Draw() - Traitement terrain #{terrainIndex}: {tileType}");
+
             // Carré coloré représentant le terrain
             var tileRect = new Rectangle(legendX + Padding, currentY, TileSize, TileSize);
             var tileColor = TileColors.GetColor(tileType);
@@ -95,8 +109,11 @@ public class LegendRenderer
                 spriteBatch.DrawString(_font, terrainName,
                     new Vector2(legendX + Padding + TileSize + 10, currentY + 2), Color.White);
 
+                GameLogger.Info($"LegendRenderer.Draw() - Récupération propriétés pour {tileType}");
                 // Probabilités (sur la ligne suivante, plus petites)
                 var properties = TerrainDefinitions.GetProperties(tileType);
+                GameLogger.Info($"LegendRenderer.Draw() - Propriétés récupérées: M={properties.MobSpawnProbability}, R={properties.ResourceSpawnProbability}, I={properties.ItemSpawnProbability}");
+
                 string probText = $"M:{properties.MobSpawnProbability * 100:F0}% R:{properties.ResourceSpawnProbability * 100:F0}% I:{properties.ItemSpawnProbability * 100:F0}%";
 
                 // Utiliser une couleur grise pour les probabilités
@@ -105,10 +122,16 @@ public class LegendRenderer
             }
 
             currentY += LineHeight;
+            terrainIndex++;
         }
+
+        GameLogger.Info("LegendRenderer.Draw() - Fin de la boucle foreach");
+        GameLogger.Info("LegendRenderer.Draw() - Fin avec succès");
         }
         catch (Exception ex)
         {
+            GameLogger.Error("LegendRenderer.Draw() - EXCEPTION CAPTURÉE", ex);
+
             // En cas d'erreur, afficher un message d'erreur simple
             if (_font != null)
             {
