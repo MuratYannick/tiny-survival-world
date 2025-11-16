@@ -89,8 +89,15 @@ public class Game1 : XnaGame
 
         _playerRenderer = new PlayerRenderer(GraphicsDevice);
 
-        // Charger la font pour le debug (optionnel, commenté si pas de font)
-        // _debugFont = Content.Load<SpriteFont>("Fonts/DebugFont");
+        // Charger la font pour le debug
+        try
+        {
+            _debugFont = Content.Load<SpriteFont>("DebugFont");
+        }
+        catch
+        {
+            // La font n'est pas obligatoire, on continue sans
+        }
     }
 
     protected override void Update(GameTime gameTime)
@@ -113,12 +120,6 @@ public class Game1 : XnaGame
         if (keyboardState.IsKeyDown(Keys.F3) && !_previousKeyboardState.IsKeyDown(Keys.F3))
             _freeCameraMode = !_freeCameraMode;
 
-        // Mettre à jour le personnage joueur
-        if (_player != null)
-        {
-            _player.Update(gameTime, keyboardState);
-        }
-
         // Gestion de la caméra
         if (_camera != null)
         {
@@ -126,16 +127,16 @@ public class Game1 : XnaGame
 
             if (_freeCameraMode)
             {
-                // Mode caméra libre (WASD pour déplacer la caméra)
+                // Mode caméra libre (flèches directionnelles uniquement)
                 Vector2 movement = Vector2.Zero;
 
-                if (keyboardState.IsKeyDown(Keys.W) || keyboardState.IsKeyDown(Keys.Up))
+                if (keyboardState.IsKeyDown(Keys.Up))
                     movement.Y -= 1;
-                if (keyboardState.IsKeyDown(Keys.S) || keyboardState.IsKeyDown(Keys.Down))
+                if (keyboardState.IsKeyDown(Keys.Down))
                     movement.Y += 1;
-                if (keyboardState.IsKeyDown(Keys.A) || keyboardState.IsKeyDown(Keys.Left))
+                if (keyboardState.IsKeyDown(Keys.Left))
                     movement.X -= 1;
-                if (keyboardState.IsKeyDown(Keys.D) || keyboardState.IsKeyDown(Keys.Right))
+                if (keyboardState.IsKeyDown(Keys.Right))
                     movement.X += 1;
 
                 if (movement != Vector2.Zero)
@@ -144,16 +145,20 @@ public class Game1 : XnaGame
                     _camera.Move(movement * CameraSpeed * deltaTime / _camera.Zoom);
                 }
             }
-            else if (_player != null)
+            else
             {
-                // Mode suivi du joueur
-                _camera.CenterOn(_player.Position);
+                // Mode suivi du joueur - mettre à jour le personnage
+                if (_player != null)
+                {
+                    _player.Update(gameTime, keyboardState);
+                    _camera.CenterOn(_player.Position);
+                }
             }
 
-            // Zoom (Q/E) - fonctionne dans les deux modes
-            if (keyboardState.IsKeyDown(Keys.Q))
+            // Zoom (+/-) - fonctionne dans les deux modes
+            if (keyboardState.IsKeyDown(Keys.OemMinus) || keyboardState.IsKeyDown(Keys.Subtract))
                 _camera.Zoom -= ZoomSpeed * deltaTime;
-            if (keyboardState.IsKeyDown(Keys.E))
+            if (keyboardState.IsKeyDown(Keys.OemPlus) || keyboardState.IsKeyDown(Keys.Add))
                 _camera.Zoom += ZoomSpeed * deltaTime;
 
             // Charger les chunks autour de la position de référence (joueur ou caméra)
@@ -250,7 +255,15 @@ public class Game1 : XnaGame
             y += lineHeight;
             DrawDebugText($"Tiles rendered: {_tileRenderer.TilesRenderedLastFrame}", 10, y);
             y += lineHeight;
-            DrawDebugText("Controls: ZQSD=Move Player, Q/E=Zoom", 10, y);
+
+            if (_freeCameraMode)
+            {
+                DrawDebugText("Controls: Arrows=Move Cam, +/-=Zoom", 10, y);
+            }
+            else
+            {
+                DrawDebugText("Controls: ZQSD/Arrows=Move, +/-=Zoom", 10, y);
+            }
             y += lineHeight;
             DrawDebugText("F1=Debug, F2=Grid, F3=Free Cam, ESC=Quit", 10, y);
         }
