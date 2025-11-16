@@ -27,25 +27,53 @@ Ce document trace l'avancement global du développement de Tiny Survival World, 
 
 ---
 
-### Phase 2 : Fondations du jeu (À venir)
-**Statut** : Non commencé
-**Date** : -
+### Phase 2 : Fondations du jeu ✅
+**Statut** : Complété
+**Date de début** : 2025-11-15
+**Date de fin** : 2025-11-16
 
-#### Objectifs
-- [ ] Modèles de données de base
-- [ ] Schéma de base de données MySQL
-- [ ] Système de monde/carte
-- [ ] Système de joueur
-- [ ] Rendu basique MonoGame
+#### Réalisations
+- ✅ Modèles de données de base (Character, World, Items, Factions, Clans)
+- ✅ Schéma de base de données MySQL avec Entity Framework Core
+- ✅ Système de monde procédural avec chunks (32x32 tiles)
+- ✅ Génération procédurale par bruit de Perlin (13 types de terrains)
+- ✅ Système de personnage joueur avec mouvement ZQSD/flèches
+- ✅ Détection de collision tile-based
+- ✅ Rendu MonoGame avec caméra 2D (zoom, rotation, modes Follow/Free)
+- ✅ Debug overlay avec statistiques de performance
+- ✅ Streaming de chunks intelligent (load/unload automatique)
+
+**Documentation** : Voir [docs/progression/fondation-du-jeu.md](docs/progression/fondation-du-jeu.md)
 
 ---
 
-### Phase 3 : Systèmes de jeu core (À venir)
+### Phase 3 : Terrains et Collisions (En cours)
+**Statut** : En cours
+**Branche** : `feature/phase3-terrains-et-collisions`
+**Date de début** : 2025-11-16
+
+#### Objectifs
+- [ ] Redéfinition des modèles pour les types de terrains
+  - [ ] Propriétés détaillées par type de terrain
+  - [ ] Système de ressources par terrain
+  - [ ] Dangers et effets environnementaux
+- [ ] Amélioration du système de collision
+  - [ ] Validation et correction des collisions
+  - [ ] Gestion des transitions entre terrains
+  - [ ] Collisions avec obstacles et structures
+- [ ] Propriétés avancées des tiles
+  - [ ] Traversabilité conditionnelle
+  - [ ] Coût de mouvement par terrain
+  - [ ] Détection de ressources extractibles
+
+---
+
+### Phase 4 : Systèmes de jeu core (À venir)
 **Statut** : Non commencé
 **Date** : -
 
 #### Objectifs
-- [ ] Système de mouvement
+- [ ] Système de sprites et animations
 - [ ] Système d'inventaire
 - [ ] Système de ressources
 - [ ] Système de crafting basique
@@ -53,7 +81,7 @@ Ce document trace l'avancement global du développement de Tiny Survival World, 
 
 ---
 
-### Phase 4 : Gameplay et mécaniques (À venir)
+### Phase 5 : Gameplay et mécaniques (À venir)
 **Statut** : Non commencé
 **Date** : -
 
@@ -66,7 +94,7 @@ Ce document trace l'avancement global du développement de Tiny Survival World, 
 
 ---
 
-### Phase 5 : Contenu et équilibrage (À venir)
+### Phase 6 : Contenu et équilibrage (À venir)
 **Statut** : Non commencé
 **Date** : -
 
@@ -78,7 +106,7 @@ Ce document trace l'avancement global du développement de Tiny Survival World, 
 
 ---
 
-### Phase 6 : Multi-plateforme (À venir)
+### Phase 7 : Multi-plateforme (À venir)
 **Statut** : Non commencé
 **Date** : -
 
@@ -93,26 +121,32 @@ Ce document trace l'avancement global du développement de Tiny Survival World, 
 ## Métriques
 
 ### Code
-- **Projets** : 4
-- **Classes** : 1 (Game1)
-- **Lignes de code** : ~100
+- **Projets** : 4 (Core, Data, Shared, Game.Desktop)
+- **Fichiers créés** : 39
+- **Fichiers supprimés** : 2
+- **Lignes de code** : ~3450
 - **Couverture de tests** : 0%
+- **Commits** : 7 (Phase 2)
 
 ### Fonctionnalités
-- **Complétées** : 0
-- **En cours** : 0
-- **Planifiées** : ~20
+- **Complétées** : 9 (Phase 2)
+- **En cours** : 0 (Phase 3 à démarrer)
+- **Planifiées** : ~15+
+
+### Base de données
+- **Tables créées** : 5 (Characters, Factions, Clans, Worlds, Items)
+- **Migrations** : 2
 
 ---
 
-## Prochaines étapes prioritaires
+## Prochaines étapes prioritaires (Phase 3)
 
-1. Définir les modèles de données de base (Joueur, Monde, Items, etc.)
-2. Créer le schéma de base de données MySQL
-3. Implémenter le système de monde/carte
-4. Mettre en place le rendu de base avec MonoGame
+1. Redéfinir les modèles pour les types de terrains avec propriétés détaillées
+2. Améliorer et valider le système de collision
+3. Implémenter les propriétés avancées des tiles (ressources, dangers, etc.)
+4. Gérer les transitions entre types de terrains
 
 ---
 
-**Dernière mise à jour** : 2025-11-15
-**Version** : 0.1.0-alpha
+**Dernière mise à jour** : 2025-11-16
+**Version** : 0.2.0-alpha
