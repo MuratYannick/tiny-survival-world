@@ -47,7 +47,7 @@ Démarrer la phase 3 en analysant le système actuel et en planifiant les améli
    - ✅ Tile.cs exposé les propriétés via property Properties
    - ✅ LegendRenderer mis à jour pour afficher les probabilités (format "M:XX% R:XX% I:XX%")
    - ✅ Valeurs définies par terrain :
-     - Eau Profonde : M:10% R:0% I:0%
+     - Eau Profonde : M:0% R:0% I:0% (zone inaccessible)
      - Eau Peu Profonde : M:20% R:10% I:5%
      - Sable : M:20% R:10% I:10%
      - Herbe : M:40% R:30% I:20%
@@ -56,10 +56,17 @@ Démarrer la phase 3 en analysant le système actuel et en planifiant les améli
      - Forêt Clairsemée : M:40% R:50% I:20%
      - Colline : M:30% R:40% I:10%
      - Montagne : M:20% R:70% I:20%
-     - Pic Enneigé : M:10% R:20% I:5%
+     - Pic Enneigé : M:0% R:0% I:0% (zone inaccessible)
      - Marécage : M:70% R:40% I:30%
      - Ruines : M:80% R:20% I:70%
      - Zone Toxique : M:70% R:30% I:50%
+
+4. **Système de collision pour zones inaccessibles**
+   - ✅ Zones inaccessibles définies : DeepWater et SnowPeak (IsWalkable = false)
+   - ✅ Montagnes rendues accessibles avec MovementCost élevé (2.5f)
+   - ✅ Probabilités mises à 0 pour les zones inaccessibles
+   - ✅ Validation du système de collision existant (PlayerCharacter.IsTileWalkable())
+   - ✅ Tests de compilation : 0 erreurs, 0 avertissements
 
 #### Tâches à réaliser
 

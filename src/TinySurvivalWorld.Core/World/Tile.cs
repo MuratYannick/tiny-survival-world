@@ -51,7 +51,6 @@ public class Tile
     public bool IsWalkable => Type switch
     {
         TileType.DeepWater => false,
-        TileType.Mountain => false,
         TileType.SnowPeak => false,
         _ => true
     };
@@ -68,10 +67,11 @@ public class Tile
         TileType.Forest => 1.3f,
         TileType.SparseForest => 1.1f,
         TileType.Hill => 1.4f,
+        TileType.Mountain => 2.5f,
         TileType.Swamp => 2.0f,
         TileType.Ruins => 1.2f,
         TileType.Toxic => 1.5f,
-        _ => float.MaxValue // Non traversable
+        _ => float.MaxValue // Non traversable (DeepWater, SnowPeak)
     };
 
     /// <summary>

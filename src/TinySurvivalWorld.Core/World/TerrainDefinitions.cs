@@ -9,11 +9,11 @@ public static class TerrainDefinitions
 {
     private static readonly Dictionary<TileType, TerrainProperties> _definitions = new()
     {
-        // Eau profonde - Zone aquatique, peu de vie, pas de ressources terrestres
+        // Eau profonde - Zone inaccessible, aucune apparition possible
         [TileType.DeepWater] = new TerrainProperties(
-            mobSpawnProbability: 0.1f,      // Peu de mobs aquatiques
-            resourceSpawnProbability: 0.0f, // Pas de ressources extractibles
-            itemSpawnProbability: 0.0f      // Pas d'items au fond
+            mobSpawnProbability: 0.0f,      // Zone inaccessible
+            resourceSpawnProbability: 0.0f, // Zone inaccessible
+            itemSpawnProbability: 0.0f      // Zone inaccessible
         ),
 
         // Eau peu profonde - Zone côtière, quelques créatures aquatiques
@@ -72,11 +72,11 @@ public static class TerrainDefinitions
             itemSpawnProbability: 0.2f      // Quelques items (équipement abandonné)
         ),
 
-        // Pic enneigé - Conditions extrêmes, très peu de vie
+        // Pic enneigé - Zone inaccessible, aucune apparition possible
         [TileType.SnowPeak] = new TerrainProperties(
-            mobSpawnProbability: 0.1f,      // Très peu de mobs (créatures glaciaires)
-            resourceSpawnProbability: 0.2f, // Ressources rares (cristaux de glace)
-            itemSpawnProbability: 0.05f     // Items très rares
+            mobSpawnProbability: 0.0f,      // Zone inaccessible
+            resourceSpawnProbability: 0.0f, // Zone inaccessible
+            itemSpawnProbability: 0.0f      // Zone inaccessible
         ),
 
         // Marécage - Zone dangereuse, riche en vie hostile
