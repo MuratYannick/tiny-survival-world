@@ -41,6 +41,11 @@ public class Tile
     public float Temperature { get; set; }
 
     /// <summary>
+    /// Propriétés du terrain (probabilités de spawn pour mobs, ressources, items).
+    /// </summary>
+    public TerrainProperties Properties => TerrainDefinitions.GetProperties(Type);
+
+    /// <summary>
     /// Indique si la tuile est traversable par les personnages.
     /// </summary>
     public bool IsWalkable => Type switch

@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using TinySurvivalWorld.Core.Enums;
+using TinySurvivalWorld.Core.World;
 
 namespace TinySurvivalWorld.Game.Desktop.Rendering;
 
@@ -15,8 +16,8 @@ public class LegendRenderer
 
     private const int Padding = 10;
     private const int TileSize = 20;
-    private const int LineHeight = 25;
-    private const int LegendWidth = 300;
+    private const int LineHeight = 40; // Augmenté pour afficher les probabilités
+    private const int LegendWidth = 320; // Augmenté pour les probabilités
 
     public LegendRenderer(GraphicsDevice graphicsDevice)
     {
@@ -91,6 +92,14 @@ public class LegendRenderer
                 string terrainName = GetTerrainName(tileType);
                 spriteBatch.DrawString(_font, terrainName,
                     new Vector2(legendX + Padding + TileSize + 10, currentY + 2), Color.White);
+
+                // Probabilités (sur la ligne suivante, plus petites)
+                var properties = TerrainDefinitions.GetProperties(tileType);
+                string probText = $"M:{properties.MobSpawnProbability * 100:F0}% R:{properties.ResourceSpawnProbability * 100:F0}% I:{properties.ItemSpawnProbability * 100:F0}%";
+
+                // Utiliser une couleur grise pour les probabilités
+                spriteBatch.DrawString(_font, probText,
+                    new Vector2(legendX + Padding + TileSize + 10, currentY + 18), new Color(180, 180, 180));
             }
 
             currentY += LineHeight;

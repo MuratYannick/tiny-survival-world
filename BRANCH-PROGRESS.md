@@ -28,7 +28,38 @@ Démarrer la phase 3 en analysant le système actuel et en planifiant les améli
 
 #### Tâches complétées ✅
 
-Aucune tâche complétée pour le moment.
+1. **Remplacement terrain Radioactive → Toxic**
+   - ✅ TileType enum mis à jour (Radioactive → Toxic)
+   - ✅ Description adaptée : "Zone toxique/contaminée (déchets toxiques, pollution chimique)"
+   - ✅ TileColors mis à jour : RGB(150, 180, 40) - vert-jaune toxique
+   - ✅ Tile.cs mis à jour (MovementCost)
+
+2. **Fenêtre de légende des terrains**
+   - ✅ LegendRenderer créé (affichage des 13 types de terrains)
+   - ✅ Noms localisés en français
+   - ✅ Design professionnel (fond semi-transparent, bordure)
+   - ✅ Toggle avec F4
+   - ✅ Game1 intégré avec dispose() et partage de font
+
+3. **Système de propriétés de terrains avec probabilités**
+   - ✅ TerrainProperties créé (3 probabilités: mobs, ressources, items)
+   - ✅ TerrainDefinitions créé avec valeurs pour les 13 terrains
+   - ✅ Tile.cs exposé les propriétés via property Properties
+   - ✅ LegendRenderer mis à jour pour afficher les probabilités (format "M:XX% R:XX% I:XX%")
+   - ✅ Valeurs définies par terrain :
+     - Eau Profonde : M:10% R:0% I:0%
+     - Eau Peu Profonde : M:20% R:10% I:5%
+     - Sable : M:20% R:10% I:10%
+     - Herbe : M:40% R:30% I:20%
+     - Terre : M:30% R:20% I:10%
+     - Forêt Dense : M:60% R:80% I:30%
+     - Forêt Clairsemée : M:40% R:50% I:20%
+     - Colline : M:30% R:40% I:10%
+     - Montagne : M:20% R:70% I:20%
+     - Pic Enneigé : M:10% R:20% I:5%
+     - Marécage : M:70% R:40% I:30%
+     - Ruines : M:80% R:20% I:70%
+     - Zone Toxique : M:70% R:30% I:50%
 
 #### Tâches à réaliser
 
