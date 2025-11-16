@@ -127,7 +127,7 @@ public class Game1 : XnaGame
             _freeCameraMode = !_freeCameraMode;
 
         // Toggle legend
-        if (keyboardState.IsKeyDown(Keys.F4) && !_previousKeyboardState.IsKeyDown(Keys.F4))
+        if (keyboardState.IsKeyDown(Keys.L) && !_previousKeyboardState.IsKeyDown(Keys.L))
             _showLegend = !_showLegend;
 
         // Gestion de la caméra
@@ -283,7 +283,7 @@ public class Game1 : XnaGame
                 DrawDebugText("Controls: ZQSD/Arrows=Move, +/-=Zoom", 10, y);
             }
             y += lineHeight;
-            DrawDebugText("F1=Debug, F2=Grid, F3=Free Cam, F4=Legend", 10, y);
+            DrawDebugText("F1=Debug, F2=Grid, F3=Free Cam, L=Legend", 10, y);
             y += lineHeight;
             DrawDebugText("ESC=Quit", 10, y);
         }

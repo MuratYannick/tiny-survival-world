@@ -38,7 +38,7 @@ Démarrer la phase 3 en analysant le système actuel et en planifiant les améli
    - ✅ LegendRenderer créé (affichage des 13 types de terrains)
    - ✅ Noms localisés en français
    - ✅ Design professionnel (fond semi-transparent, bordure)
-   - ✅ Toggle avec F4
+   - ✅ Toggle avec touche L (changé de F4 pour éviter conflit Alt+F4)
    - ✅ Game1 intégré avec dispose() et partage de font
 
 3. **Système de propriétés de terrains avec probabilités**
@@ -67,6 +67,12 @@ Démarrer la phase 3 en analysant le système actuel et en planifiant les améli
    - ✅ Probabilités mises à 0 pour les zones inaccessibles
    - ✅ Validation du système de collision existant (PlayerCharacter.IsTileWalkable())
    - ✅ Tests de compilation : 0 erreurs, 0 avertissements
+
+5. **Correction bug affichage légende**
+   - ✅ Bug identifié : F4 causait la fermeture du jeu (conflit Alt+F4 Windows)
+   - ✅ Touche changée de F4 vers L (pour Legend/Légende)
+   - ✅ Affichage debug mis à jour
+   - ✅ Build réussi : 0 erreurs, 0 avertissements
 
 #### Tâches à réaliser
 
