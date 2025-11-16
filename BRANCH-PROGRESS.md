@@ -90,6 +90,19 @@ Démarrer la phase 3 en analysant le système actuel et en planifiant les améli
    - ✅ Logs avec timestamp, niveau (INFO/WARNING/ERROR), et stack trace pour exceptions
    - ✅ Build réussi : 0 erreurs, 0 avertissements
 
+8. **Correction définitive du bug légende - Caractères accentués**
+   - ✅ Cause identifiée grâce aux logs : "Text contains characters that cannot be resolved by this SpriteFont"
+   - ✅ Problème : DebugFont ne supporte pas les caractères accentués français (é, è, ê, etc.)
+   - ✅ Solution : Remplacement des caractères accentués par versions ASCII
+   - ✅ Modifications :
+     - "Légende" → "Legende"
+     - "Forêt" → "Foret"
+     - "Clairsemée" → "Clairsemee"
+     - "Enneigé" → "Enneige"
+     - "Marécage" → "Marecage"
+   - ✅ Build réussi : 0 erreurs, 0 avertissements
+   - ✅ La légende devrait maintenant s'afficher correctement avec la touche L
+
 #### Tâches à réaliser
 
 ### Priorité Haute

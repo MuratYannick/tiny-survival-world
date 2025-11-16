@@ -82,7 +82,7 @@ public class LegendRenderer
         // Titre
         if (_font != null)
         {
-            spriteBatch.DrawString(_font, "Légende des Terrains",
+            spriteBatch.DrawString(_font, "Legende des Terrains",
                 new Vector2(legendX + Padding, currentY), Color.White);
         }
         currentY += 30;
@@ -153,12 +153,12 @@ public class LegendRenderer
             TileType.Sand => "Sable",
             TileType.Grass => "Herbe",
             TileType.Dirt => "Terre",
-            TileType.Forest => "Forêt Dense",
-            TileType.SparseForest => "Forêt Clairsemée",
+            TileType.Forest => "Foret Dense",
+            TileType.SparseForest => "Foret Clairsemee",
             TileType.Hill => "Colline",
             TileType.Mountain => "Montagne",
-            TileType.SnowPeak => "Pic Enneigé",
-            TileType.Swamp => "Marécage",
+            TileType.SnowPeak => "Pic Enneige",
+            TileType.Swamp => "Marecage",
             TileType.Ruins => "Ruines",
             TileType.Toxic => "Zone Toxique",
             _ => "Inconnu"
