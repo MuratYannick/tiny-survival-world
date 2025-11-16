@@ -123,6 +123,13 @@ Démarrer la phase 3 en analysant le système actuel et en planifiant les améli
    - ✅ Si DevMode=false : jeu lance directement avec config par défaut
    - ✅ Build réussi : 0 erreurs, 1 avertissement mineur
 
+10. **Correction activation DevMode**
+   - ✅ Problème identifié : appsettings.json non copié dans output directory
+   - ✅ .csproj modifié : ajout <None Update> pour appsettings.json et appsettings.Development.json
+   - ✅ CopyToOutputDirectory=PreserveNewest configuré
+   - ✅ NuGet package ajouté : Microsoft.Extensions.Configuration.Json v10.0.0
+   - ✅ Build réussi : 0 erreurs, 1 avertissement (CS0649 attendu sur _currentSeed)
+
 #### Tâches à réaliser
 
 ### Priorité Haute
