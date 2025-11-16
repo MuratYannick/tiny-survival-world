@@ -130,6 +130,15 @@ Démarrer la phase 3 en analysant le système actuel et en planifiant les améli
    - ✅ NuGet package ajouté : Microsoft.Extensions.Configuration.Json v10.0.0
    - ✅ Build réussi : 0 erreurs, 1 avertissement (CS0649 attendu sur _currentSeed)
 
+11. **Améliorations ConfigurationScreen (6 corrections UX)**
+   - ✅ Panneau de contrôle décalé de 30px vers la droite (évite chevauchement preview)
+   - ✅ Sensibilité touches ajustée avec throttling 150ms (évite ajustements trop rapides)
+   - ✅ Résolution preview augmentée - tiles divisées par 2 (vue plus large du terrain)
+   - ✅ Seed fixe pour preview - généré une fois au démarrage, stable pendant ajustements
+   - ✅ Touche S ajoutée pour régénérer seed aléatoire à la demande
+   - ✅ Warning CS0649 corrigé - _currentSeed initialisé dans constructeur
+   - ✅ Build réussi : 0 erreurs, 0 avertissements
+
 #### Tâches à réaliser
 
 ### Priorité Haute
