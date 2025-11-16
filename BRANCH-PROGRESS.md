@@ -2,7 +2,7 @@
 
 **Branche** : `feature/phase2-foundations`
 **Dernière mise à jour** : 2025-11-15
-**Statut** : En cours - Base de données MySQL créée
+**Statut** : En cours - Refactoring Player → Character terminé
 
 ---
 
@@ -75,6 +75,35 @@ Initialiser la branche de la phase 2 et commencer l'implémentation des modèles
      - `Players` : table des joueurs avec FK vers World (Cascade), Faction, Clan
    - ✅ Table `__EFMigrationsHistory` créée automatiquement par EF Core
 
+5. **Refactoring majeur : Player → Character (support PNJ)**
+   - ✅ **Raison** : Résolution de circularité `Clans.LeaderId ↔ Player.ClanId`
+   - ✅ Modèle `Player` renommé en `Character`
+   - ✅ Nouvelles propriétés ajoutées :
+     - `IsPlayer` : bool pour distinguer joueurs/PNJ (défaut: true)
+     - `IsClanLeader` : bool pour marquer le leader d'un clan (défaut: false)
+     - `IsFactionLeader` : bool pour marquer le leader d'une faction (défaut: false)
+   - ✅ Modèle `Clan` modifié :
+     - Suppression de `LeaderId` (circularité résolue)
+     - Suppression de la navigation `Leader`
+     - Ajout de `Tag` (string nullable, max 5 caractères)
+     - `CreatedAt` renommé en `FoundedDate` pour cohérence
+   - ✅ Modèle `World` modifié :
+     - `Players` renommé en `Characters`
+     - Ajout de `CharacterCount` (propriété calculée)
+     - `PlayerCount` maintenant calculé avec `Characters.Count(c => c.IsPlayer)`
+   - ✅ `GameDbContext` : DbSet<Character> Characters
+   - ✅ Configurations EF Core mises à jour :
+     - `CharacterConfiguration` créée (remplace PlayerConfiguration)
+     - `ClanConfiguration` : suppression de la relation Leader
+     - `FactionConfiguration` : mise à jour des relations
+     - `WorldConfiguration` : mise à jour des relations
+   - ✅ Migration `RefactorPlayerToCharacter` créée et appliquée
+   - ✅ Table MySQL `Players` renommée en `Characters`
+   - ✅ Colonnes ajoutées : `IsPlayer`, `IsClanLeader`, `IsFactionLeader`
+   - ✅ Colonne `LeaderId` supprimée de `Clans`
+   - ✅ Colonne `Tag` ajoutée à `Clans`
+   - ✅ Build réussie (0 erreurs, 0 warnings)
+
 #### Tâches à réaliser
 
 ### Priorité Haute
@@ -125,8 +154,11 @@ Initialiser la branche de la phase 2 et commencer l'implémentation des modèles
 
 **Implémentation** :
 - **Faction** : ID int (seulement 2 factions fixes), ethnie requise, collections de clans et membres
-- **Clan** : ID Guid, FactionId nullable, type ethnique pour clans indépendants
-- **Player** : ID Guid, ethnie obligatoire, FactionId et ClanId nullables
+- **Clan** : ID Guid, FactionId nullable, type ethnique pour clans indépendants, Tag optionnel
+- **Character** (renommé depuis Player) : ID Guid, ethnie obligatoire, FactionId et ClanId nullables
+  - `IsPlayer` : distingue joueurs (true) vs PNJ (false)
+  - `IsClanLeader` : marque le leader du clan (remplace Clan.LeaderId - circularité résolue)
+  - `IsFactionLeader` : marque le leader de la faction
 - **Règles de recrutement** :
   - Clans de faction : recrutent uniquement membres de leur faction
   - Clans indépendants : recrutent uniquement sans faction, avec restrictions ethniques
@@ -139,14 +171,13 @@ Initialiser la branche de la phase 2 et commencer l'implémentation des modèles
 - **Pomelo MySQL Provider** 9.0.0 pour MySQL
 - **Version MySQL fixe** (8.0.40) dans le DbContextFactory pour éviter connexion au design-time
 - **Pattern DbContextFactory** pour permettre les migrations sans serveur MySQL actif
-- **Cascade delete** uniquement pour World → Players (suppression logique)
-- **SetNull** pour Faction → Clans/Players (préservation des données)
-- **Restrict** pour Clan.Leader → Player (éviter suppression accidentelle)
+- **Cascade delete** uniquement pour World → Characters (suppression logique)
+- **SetNull** pour Faction → Clans/Characters et Clan → Characters (préservation des données)
 
-**Schéma de base de données** :
+**Schéma de base de données (après refactoring)** :
 - **Factions** : ID int, unique sur Name
-- **Clans** : ID Guid, FactionId nullable, LeaderId avec restriction
-- **Players** : ID Guid, WorldId obligatoire (cascade), FactionId/ClanId nullables
+- **Clans** : ID Guid, FactionId nullable, Tag (5 car. max), pas de LeaderId
+- **Characters** : ID Guid, WorldId obligatoire (cascade), FactionId/ClanId nullables, IsPlayer, IsClanLeader, IsFactionLeader
 - **Worlds** : ID Guid, seed pour génération procédurale
 - **Items** : ID Guid, unique sur Code, index sur Type
 
@@ -174,9 +205,10 @@ Initialiser la branche de la phase 2 et commencer l'implémentation des modèles
 
 **Core/Models/** :
 - `Faction.cs` : Modèle avec validation d'ethnie
-- `Clan.cs` : Modèle avec logique de recrutement complexe
-- `Player.cs` : Modèle avec statistiques de survie, affiliations et monde
-- `World.cs` : Modèle de monde avec seed, difficulté, taille
+- `Clan.cs` : Modèle avec logique de recrutement complexe (Tag ajouté, LeaderId supprimé)
+- `Character.cs` : Modèle avec statistiques de survie, affiliations et monde (renommé depuis Player.cs, avec IsPlayer, IsClanLeader, IsFactionLeader)
+- ~~`Player.cs`~~ : Supprimé et remplacé par Character.cs
+- `World.cs` : Modèle de monde avec seed, difficulté, taille (Players → Characters)
 - `Item.cs` : Catalogue d'items avec propriétés variées
 
 **Data/** :
@@ -184,16 +216,19 @@ Initialiser la branche de la phase 2 et commencer l'implémentation des modèles
 - `GameDbContextFactory.cs` : Factory pour design-time DbContext (migrations)
 
 **Data/Configurations/** :
-- `FactionConfiguration.cs` : Configuration FluentAPI pour Faction
-- `ClanConfiguration.cs` : Configuration FluentAPI pour Clan
-- `PlayerConfiguration.cs` : Configuration FluentAPI pour Player
-- `WorldConfiguration.cs` : Configuration FluentAPI pour World
+- `FactionConfiguration.cs` : Configuration FluentAPI pour Faction (mise à jour pour Character)
+- `ClanConfiguration.cs` : Configuration FluentAPI pour Clan (suppression relation Leader, ajout Tag)
+- `CharacterConfiguration.cs` : Configuration FluentAPI pour Character (remplace PlayerConfiguration.cs)
+- ~~`PlayerConfiguration.cs`~~ : Supprimé et remplacé par CharacterConfiguration.cs
+- `WorldConfiguration.cs` : Configuration FluentAPI pour World (mise à jour pour Characters)
 - `ItemConfiguration.cs` : Configuration FluentAPI pour Item
 
 **Data/Migrations/** :
 - `20251115162405_InitialCreate.cs` : Migration initiale
 - `20251115162405_InitialCreate.Designer.cs` : Designer de migration
-- `GameDbContextModelSnapshot.cs` : Snapshot du modèle EF Core
+- `20251115170728_RefactorPlayerToCharacter.cs` : Migration Player → Character (renommage table, ajout colonnes, suppression LeaderId)
+- `20251115170728_RefactorPlayerToCharacter.Designer.cs` : Designer de migration refactoring
+- `GameDbContextModelSnapshot.cs` : Snapshot du modèle EF Core (mis à jour)
 
 **Game.Desktop/** :
 - `appsettings.json` : Configuration production avec connection string MySQL
@@ -223,12 +258,13 @@ Initialiser la branche de la phase 2 et commencer l'implémentation des modèles
 
 ## Statistiques
 
-**Fichiers créés** : 22 (1 structure, 4 enums, 5 modèles, 1 DbContext, 1 Factory, 5 configurations, 3 migrations, 2 appsettings)
-**Lignes de code ajoutées** : ~1500
-**Commits** : 3 (init + modèles + EF Core config)
+**Fichiers créés** : 21 (1 structure, 4 enums, 5 modèles, 1 DbContext, 1 Factory, 5 configurations, 5 migrations, 2 appsettings)
+**Fichiers supprimés** : 2 (Player.cs, PlayerConfiguration.cs - remplacés par Character.cs et CharacterConfiguration.cs)
+**Lignes de code ajoutées** : ~1600
+**Commits** : 3 (init + modèles + EF Core config) - Prochain: Refactoring Player → Character
 **Tests** : 0
 **Build** : ✅ Réussie (0 erreurs, 0 warnings)
-**Base de données** : ✅ Créée avec 5 tables (MySQL 8.0 via WampServer)
+**Base de données** : ✅ Mise à jour avec table Characters (3 nouvelles colonnes, circularité résolue)
 
 ---
 

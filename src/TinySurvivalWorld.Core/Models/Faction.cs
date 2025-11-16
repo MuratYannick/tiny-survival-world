@@ -42,17 +42,17 @@ public class Faction
     public ICollection<Clan> Clans { get; set; } = new List<Clan>();
 
     /// <summary>
-    /// Collection des joueurs membres de cette faction.
+    /// Collection des personnages membres de cette faction (joueurs et PNJ).
     /// </summary>
-    public ICollection<Player> Members { get; set; } = new List<Player>();
+    public ICollection<Character> Members { get; set; } = new List<Character>();
 
     /// <summary>
-    /// Vérifie si un joueur peut rejoindre cette faction selon son ethnie.
+    /// Vérifie si un personnage peut rejoindre cette faction selon son ethnie.
     /// </summary>
-    /// <param name="playerEthnicity">L'ethnie du joueur</param>
-    /// <returns>True si le joueur peut rejoindre, sinon false</returns>
-    public bool CanJoin(Ethnicity playerEthnicity)
+    /// <param name="characterEthnicity">L'ethnie du personnage</param>
+    /// <returns>True si le personnage peut rejoindre, sinon false</returns>
+    public bool CanJoin(Ethnicity characterEthnicity)
     {
-        return playerEthnicity == RequiredEthnicity;
+        return characterEthnicity == RequiredEthnicity;
     }
 }

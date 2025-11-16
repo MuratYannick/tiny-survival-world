@@ -70,13 +70,14 @@ public class WorldConfiguration : IEntityTypeConfiguration<World>
             .IsUnique();
 
         // Relationships
-        builder.HasMany(w => w.Players)
-            .WithOne(p => p.World)
-            .HasForeignKey(p => p.WorldId)
+        builder.HasMany(w => w.Characters)
+            .WithOne(ch => ch.World)
+            .HasForeignKey(ch => ch.WorldId)
             .OnDelete(DeleteBehavior.Cascade);
 
         // Ignorer les propriétés calculées
         builder.Ignore(w => w.IsInfinite);
+        builder.Ignore(w => w.CharacterCount);
         builder.Ignore(w => w.PlayerCount);
         builder.Ignore(w => w.GameTimeSpan);
     }

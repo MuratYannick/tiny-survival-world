@@ -3,45 +3,62 @@ using TinySurvivalWorld.Core.Enums;
 namespace TinySurvivalWorld.Core.Models;
 
 /// <summary>
-/// Représente un joueur dans le monde de Tiny Survival World.
+/// Représente un personnage dans le monde de Tiny Survival World (joueur ou PNJ).
 /// </summary>
-public class Player
+public class Character
 {
     /// <summary>
-    /// Identifiant unique du joueur.
+    /// Identifiant unique du personnage.
     /// </summary>
     public Guid Id { get; set; }
 
     /// <summary>
-    /// Nom du joueur (unique).
+    /// Nom du personnage (unique).
     /// </summary>
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
-    /// Ethnie du joueur (Éveillés ou Inaltérés).
-    /// Détermine quelle faction le joueur peut rejoindre.
+    /// Indique si ce personnage est contrôlé par un joueur (true) ou est un PNJ (false).
+    /// </summary>
+    public bool IsPlayer { get; set; } = true;
+
+    /// <summary>
+    /// Ethnie du personnage (Éveillés ou Inaltérés).
+    /// Détermine quelle faction le personnage peut rejoindre.
     /// </summary>
     public Ethnicity Ethnicity { get; set; }
 
     /// <summary>
-    /// Identifiant de la faction à laquelle le joueur appartient (null si aucune).
+    /// Identifiant de la faction à laquelle le personnage appartient (null si aucune).
     /// </summary>
     public int? FactionId { get; set; }
 
     /// <summary>
-    /// Identifiant du clan auquel le joueur appartient (null si aucun).
+    /// Identifiant du clan auquel le personnage appartient (null si aucun).
     /// </summary>
     public Guid? ClanId { get; set; }
 
     /// <summary>
-    /// Identifiant du monde dans lequel le joueur existe.
+    /// Identifiant du monde dans lequel le personnage existe.
     /// </summary>
     public Guid WorldId { get; set; }
+
+    /// <summary>
+    /// Indique si ce personnage est le leader de son clan.
+    /// Doit être membre d'un clan pour être leader (ClanId != null).
+    /// </summary>
+    public bool IsClanLeader { get; set; } = false;
+
+    /// <summary>
+    /// Indique si ce personnage est le leader de sa faction.
+    /// Doit être membre d'une faction pour être leader (FactionId != null).
+    /// </summary>
+    public bool IsFactionLeader { get; set; } = false;
 
     // Statistiques de base
 
     /// <summary>
-    /// Niveau du joueur.
+    /// Niveau du personnage.
     /// </summary>
     public int Level { get; set; } = 1;
 
@@ -93,54 +110,49 @@ public class Player
     public DateTime UpdatedAt { get; set; }
 
     /// <summary>
-    /// Dernière connexion du joueur.
+    /// Dernière connexion (uniquement pour les joueurs).
     /// </summary>
     public DateTime LastLogin { get; set; }
 
     // Navigation properties
 
     /// <summary>
-    /// Faction à laquelle le joueur appartient (null si aucune).
+    /// Faction à laquelle le personnage appartient (null si aucune).
     /// </summary>
     public Faction? Faction { get; set; }
 
     /// <summary>
-    /// Clan auquel le joueur appartient (null si aucun).
+    /// Clan auquel le personnage appartient (null si aucun).
     /// </summary>
     public Clan? Clan { get; set; }
 
     /// <summary>
-    /// Clan dirigé par ce joueur (null s'il n'est pas leader).
-    /// </summary>
-    public Clan? LeadingClan { get; set; }
-
-    /// <summary>
-    /// Monde dans lequel le joueur existe.
+    /// Monde dans lequel le personnage existe.
     /// </summary>
     public World World { get; set; } = null!;
 
     // Business logic
 
     /// <summary>
-    /// Indique si le joueur est membre d'une faction.
+    /// Indique si le personnage est membre d'une faction.
     /// </summary>
     public bool HasFaction => FactionId.HasValue;
 
     /// <summary>
-    /// Indique si le joueur est membre d'un clan.
+    /// Indique si le personnage est membre d'un clan.
     /// </summary>
     public bool HasClan => ClanId.HasValue;
 
     /// <summary>
-    /// Indique si le joueur est vivant.
+    /// Indique si le personnage est vivant.
     /// </summary>
     public bool IsAlive => Health > 0;
 
     /// <summary>
-    /// Vérifie si le joueur peut rejoindre une faction spécifique.
+    /// Vérifie si le personnage peut rejoindre une faction spécifique.
     /// </summary>
     /// <param name="faction">La faction à rejoindre</param>
-    /// <returns>True si le joueur peut rejoindre, sinon false</returns>
+    /// <returns>True si le personnage peut rejoindre, sinon false</returns>
     public bool CanJoinFaction(Faction faction)
     {
         // Déjà membre d'une faction
@@ -152,10 +164,10 @@ public class Player
     }
 
     /// <summary>
-    /// Vérifie si le joueur peut rejoindre un clan spécifique.
+    /// Vérifie si le personnage peut rejoindre un clan spécifique.
     /// </summary>
     /// <param name="clan">Le clan à rejoindre</param>
-    /// <returns>True si le joueur peut rejoindre, sinon false</returns>
+    /// <returns>True si le personnage peut rejoindre, sinon false</returns>
     public bool CanJoinClan(Clan clan)
     {
         // Déjà membre d'un clan
@@ -167,7 +179,7 @@ public class Player
     }
 
     /// <summary>
-    /// Applique des dégâts au joueur.
+    /// Applique des dégâts au personnage.
     /// </summary>
     /// <param name="damage">Montant des dégâts</param>
     public void TakeDamage(float damage)
@@ -177,7 +189,7 @@ public class Player
     }
 
     /// <summary>
-    /// Soigne le joueur.
+    /// Soigne le personnage.
     /// </summary>
     /// <param name="amount">Montant de soin</param>
     public void Heal(float amount)
@@ -187,7 +199,7 @@ public class Player
     }
 
     /// <summary>
-    /// Ajoute de l'expérience au joueur.
+    /// Ajoute de l'expérience au personnage.
     /// </summary>
     /// <param name="xp">Montant d'expérience</param>
     public void GainExperience(int xp)

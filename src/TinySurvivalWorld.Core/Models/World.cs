@@ -81,9 +81,9 @@ public class World
     // Navigation properties
 
     /// <summary>
-    /// Collection des joueurs présents dans ce monde.
+    /// Collection des personnages présents dans ce monde (joueurs et PNJ).
     /// </summary>
-    public ICollection<Player> Players { get; set; } = new List<Player>();
+    public ICollection<Character> Characters { get; set; } = new List<Character>();
 
     // Business logic
 
@@ -93,9 +93,14 @@ public class World
     public bool IsInfinite => WorldSizeX == 0 || WorldSizeY == 0;
 
     /// <summary>
-    /// Nombre de joueurs actuellement dans le monde.
+    /// Nombre de personnages actuellement dans le monde.
     /// </summary>
-    public int PlayerCount => Players.Count;
+    public int CharacterCount => Characters.Count;
+
+    /// <summary>
+    /// Nombre de joueurs (IsPlayer = true) actuellement dans le monde.
+    /// </summary>
+    public int PlayerCount => Characters.Count(c => c.IsPlayer);
 
     /// <summary>
     /// Convertit le temps de jeu en TimeSpan pour faciliter l'affichage.

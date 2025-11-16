@@ -25,9 +25,9 @@ public class GameDbContext : DbContext
     public DbSet<Clan> Clans { get; set; } = null!;
 
     /// <summary>
-    /// Table des joueurs.
+    /// Table des personnages (joueurs et PNJ).
     /// </summary>
-    public DbSet<Player> Players { get; set; } = null!;
+    public DbSet<Character> Characters { get; set; } = null!;
 
     /// <summary>
     /// Table des mondes.

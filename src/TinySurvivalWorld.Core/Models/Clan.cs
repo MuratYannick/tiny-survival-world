@@ -41,14 +41,14 @@ public class Clan
     public int MaxMembers { get; set; } = 50;
 
     /// <summary>
-    /// Date de création du clan.
+    /// Tag/sigle du clan (optionnel, 2-5 caractères).
     /// </summary>
-    public DateTime CreatedAt { get; set; }
+    public string? Tag { get; set; }
 
     /// <summary>
-    /// Identifiant du joueur fondateur/leader du clan.
+    /// Date de création du clan.
     /// </summary>
-    public Guid LeaderId { get; set; }
+    public DateTime FoundedDate { get; set; }
 
     // Navigation properties
 
@@ -58,14 +58,9 @@ public class Clan
     public Faction? Faction { get; set; }
 
     /// <summary>
-    /// Leader du clan.
+    /// Collection des membres du clan (joueurs et PNJ).
     /// </summary>
-    public Player Leader { get; set; } = null!;
-
-    /// <summary>
-    /// Collection des membres du clan.
-    /// </summary>
-    public ICollection<Player> Members { get; set; } = new List<Player>();
+    public ICollection<Character> Members { get; set; } = new List<Character>();
 
     // Business logic
 
@@ -80,11 +75,11 @@ public class Clan
     public bool IsFull => Members.Count >= MaxMembers;
 
     /// <summary>
-    /// Vérifie si un joueur peut rejoindre ce clan selon les règles de recrutement.
+    /// Vérifie si un personnage peut rejoindre ce clan selon les règles de recrutement.
     /// </summary>
-    /// <param name="player">Le joueur candidat</param>
-    /// <returns>True si le joueur peut rejoindre, sinon false</returns>
-    public bool CanJoin(Player player)
+    /// <param name="character">Le personnage candidat</param>
+    /// <returns>True si le personnage peut rejoindre, sinon false</returns>
+    public bool CanJoin(Character character)
     {
         // Le clan est plein
         if (IsFull)
@@ -93,20 +88,20 @@ public class Clan
         // Clan affilié à une faction
         if (!IsIndependent)
         {
-            // Le joueur doit être membre de la même faction
-            return player.FactionId == FactionId;
+            // Le personnage doit être membre de la même faction
+            return character.FactionId == FactionId;
         }
 
         // Clan indépendant
-        // Le joueur ne doit pas être membre d'une faction
-        if (player.FactionId.HasValue)
+        // Le personnage ne doit pas être membre d'une faction
+        if (character.FactionId.HasValue)
             return false;
 
         // Vérifier les restrictions ethniques
         return EthnicityType switch
         {
-            ClanEthnicityType.AwakenedOnly => player.Ethnicity == Ethnicity.Awakened,
-            ClanEthnicityType.UnalteredOnly => player.Ethnicity == Ethnicity.Unaltered,
+            ClanEthnicityType.AwakenedOnly => character.Ethnicity == Ethnicity.Awakened,
+            ClanEthnicityType.UnalteredOnly => character.Ethnicity == Ethnicity.Unaltered,
             ClanEthnicityType.Mixed => true,
             _ => false
         };

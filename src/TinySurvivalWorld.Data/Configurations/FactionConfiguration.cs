@@ -44,8 +44,8 @@ public class FactionConfiguration : IEntityTypeConfiguration<Faction>
             .OnDelete(DeleteBehavior.SetNull); // Si faction supprimée, clans deviennent indépendants
 
         builder.HasMany(f => f.Members)
-            .WithOne(p => p.Faction)
-            .HasForeignKey(p => p.FactionId)
-            .OnDelete(DeleteBehavior.SetNull); // Si faction supprimée, joueurs perdent leur faction
+            .WithOne(ch => ch.Faction)
+            .HasForeignKey(ch => ch.FactionId)
+            .OnDelete(DeleteBehavior.SetNull); // Si faction supprimée, personnages perdent leur faction
     }
 }

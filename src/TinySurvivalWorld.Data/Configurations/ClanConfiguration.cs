@@ -36,10 +36,10 @@ public class ClanConfiguration : IEntityTypeConfiguration<Clan>
             .IsRequired()
             .HasDefaultValue(50);
 
-        builder.Property(c => c.LeaderId)
-            .IsRequired();
+        builder.Property(c => c.Tag)
+            .HasMaxLength(5);
 
-        builder.Property(c => c.CreatedAt)
+        builder.Property(c => c.FoundedDate)
             .IsRequired();
 
         // Indexes
@@ -47,21 +47,19 @@ public class ClanConfiguration : IEntityTypeConfiguration<Clan>
             .IsUnique();
 
         builder.HasIndex(c => c.FactionId);
-        builder.HasIndex(c => c.LeaderId);
 
         // Relationships
 
         // Faction (configurée dans FactionConfiguration)
-        // Leader - relation one-to-one (un joueur peut être leader d'un seul clan)
-        builder.HasOne(c => c.Leader)
-            .WithOne(p => p.LeadingClan)
-            .HasForeignKey<Clan>(c => c.LeaderId)
-            .OnDelete(DeleteBehavior.Restrict); // Ne pas supprimer le clan si le leader est supprimé
 
         // Members
         builder.HasMany(c => c.Members)
-            .WithOne(p => p.Clan)
-            .HasForeignKey(p => p.ClanId)
-            .OnDelete(DeleteBehavior.SetNull); // Si clan supprimé, joueurs perdent leur clan
+            .WithOne(ch => ch.Clan)
+            .HasForeignKey(ch => ch.ClanId)
+            .OnDelete(DeleteBehavior.SetNull); // Si clan supprimé, personnages perdent leur clan
+
+        // Ignorer les propriétés calculées
+        builder.Ignore(c => c.IsIndependent);
+        builder.Ignore(c => c.IsFull);
     }
 }
