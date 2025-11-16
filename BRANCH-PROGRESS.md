@@ -1,254 +1,69 @@
-# Avancement Détaillé - Phase 2 : Fondations du jeu
+# Avancement Détaillé - Phase 3 : Terrains et Collisions
 
-**Branche** : `feature/phase2-foundations`
-**Date de début** : 2025-11-15
-**Date de fin** : 2025-11-16
-**Statut** : ✅ **TERMINÉE**
-
----
-
-## Objectifs de la Phase 2
-
-Cette phase visait à mettre en place les **fondations du jeu** :
-- ✅ Modèles de données de base (Character, World, Items, Factions, Clans)
-- ✅ Schéma de base de données MySQL avec Entity Framework Core
-- ✅ Système de monde procédural avec chunks et génération par bruit de Perlin
-- ✅ Système de personnage joueur avec mouvement
-- ✅ Rendu MonoGame avec caméra 2D pour visualiser le monde et le joueur
-
-**Tous les objectifs de la phase 2 ont été atteints avec succès!**
+**Branche** : `feature/phase3-terrains-et-collisions`
+**Date de début** : 2025-11-16
+**Statut** : 🚀 **EN COURS**
 
 ---
 
-## Résumé de la Phase 2
+## Objectifs de la Phase 3
 
-### Réalisations principales
+Cette phase vise à **améliorer le système de monde** en redéfinissant les types de terrains et en validant le système de collision :
+
+- Redéfinition des modèles pour les différents types de terrains avec propriétés détaillées
+- Validation et amélioration du système de collision
+- Propriétés avancées des tiles (traversabilité, ressources, dangers, etc.)
+- Gestion des transitions entre types de terrains
+
+**Prérequis** : Phase 2 terminée ✅
+
+---
+
+## Session en cours
+
+### Date : 2025-11-16
+
+#### Objectif de la session
+Démarrer la phase 3 en analysant le système actuel et en planifiant les améliorations.
 
 #### Tâches complétées ✅
 
-1. **Modèles de domaine - Système de factions et clans**
-   - ✅ Enum `Ethnicity` (Éveillés / Inaltérés)
-   - ✅ Enum `ClanEthnicityType` (restrictions ethniques des clans)
-   - ✅ Modèle `Faction` avec logique de recrutement
-   - ✅ Modèle `Clan` avec règles d'affiliation
-   - ✅ Modèle `Player` avec statistiques de base et affiliations
-   - ✅ Logique métier pour vérifier les règles de rejoindre faction/clan
+Aucune tâche complétée pour le moment.
 
-2. **Modèles de domaine - Monde et Items**
-   - ✅ Structure `Position` (Shared) avec opérateurs et méthodes utilitaires
-   - ✅ Enum `Difficulty` (Easy, Normal, Hard, Hardcore)
-   - ✅ Enum `ItemType` (Resource, Tool, Weapon, Armor, Food, etc.)
-   - ✅ Modèle `World` avec génération procédurale (seed, taille, difficulté)
-   - ✅ Modèle `Item` (catalogue d'items avec propriétés variées)
-   - ✅ Relation Player → World ajoutée
-   - ✅ Build réussie sans erreurs (2 sessions)
+#### Tâches à réaliser
 
-3. **Configuration Entity Framework Core**
-   - ✅ `GameDbContext` créé avec DbSets pour toutes les entités
-   - ✅ 5 configurations FluentAPI créées :
-     - `FactionConfiguration` : table Factions, relations One-to-Many avec Clans/Players
-     - `ClanConfiguration` : table Clans, relation One-to-One avec Leader
-     - `PlayerConfiguration` : table Players, relation Many-to-One avec World (Cascade)
-     - `WorldConfiguration` : table Worlds, valeurs par défaut, relation One-to-Many avec Players
-     - `ItemConfiguration` : table Items, index unique sur Code, valeurs par défaut
-   - ✅ `appsettings.json` et `appsettings.Development.json` configurés avec connection strings MySQL
-   - ✅ Packages NuGet installés :
-     - `Microsoft.EntityFrameworkCore` 9.0.0
-     - `Microsoft.EntityFrameworkCore.Design` 9.0.0
-     - `Pomelo.EntityFrameworkCore.MySql` 9.0.0
-     - `MySqlConnector` 2.5.0
-     - `Microsoft.Extensions.Configuration.Json` 10.0.0
-     - `Microsoft.Extensions.Configuration.Binder` 10.0.0
-   - ✅ `GameDbContextFactory` créé pour migrations EF Core (IDesignTimeDbContextFactory)
-   - ✅ Migration initiale `InitialCreate` générée avec succès
-   - ✅ Build réussie sans erreurs
+### Priorité Haute
+- [ ] **Analyse du système actuel**
+  - [ ] Analyser les 13 types de tiles existants
+  - [ ] Identifier les problèmes de collision actuels
+  - [ ] Lister les propriétés manquantes par type de terrain
 
-4. **Application de la migration et création de la base de données**
-   - ✅ WampServer démarré avec MySQL
-   - ✅ Migration `InitialCreate` appliquée avec succès
-   - ✅ Base de données `tinysurvivalworld_dev` créée
-   - ✅ 5 tables créées dans MySQL :
-     - `Factions` : table des factions avec index unique sur Name
-     - `Items` : catalogue d'items avec index unique sur Code, index sur Type
-     - `Worlds` : table des mondes avec seed et configuration
-     - `Clans` : table des clans avec FK vers Factions et LeaderId
-     - `Players` : table des joueurs avec FK vers World (Cascade), Faction, Clan
-   - ✅ Table `__EFMigrationsHistory` créée automatiquement par EF Core
+- [ ] **Redéfinition des types de terrains**
+  - [ ] Créer un modèle de données enrichi pour TileType
+  - [ ] Définir les propriétés de traversabilité par terrain
+  - [ ] Définir les ressources disponibles par terrain
+  - [ ] Définir les dangers/effets par terrain
+  - [ ] Définir le coût de mouvement par terrain
 
-5. **Refactoring majeur : Player → Character (support PNJ)**
-   - ✅ **Raison** : Résolution de circularité `Clans.LeaderId ↔ Player.ClanId`
-   - ✅ Modèle `Player` renommé en `Character`
-   - ✅ Nouvelles propriétés ajoutées :
-     - `IsPlayer` : bool pour distinguer joueurs/PNJ (défaut: true)
-     - `IsClanLeader` : bool pour marquer le leader d'un clan (défaut: false)
-     - `IsFactionLeader` : bool pour marquer le leader d'une faction (défaut: false)
-   - ✅ Modèle `Clan` modifié :
-     - Suppression de `LeaderId` (circularité résolue)
-     - Suppression de la navigation `Leader`
-     - Ajout de `Tag` (string nullable, max 5 caractères)
-     - `CreatedAt` renommé en `FoundedDate` pour cohérence
-   - ✅ Modèle `World` modifié :
-     - `Players` renommé en `Characters`
-     - Ajout de `CharacterCount` (propriété calculée)
-     - `PlayerCount` maintenant calculé avec `Characters.Count(c => c.IsPlayer)`
-   - ✅ `GameDbContext` : DbSet<Character> Characters
-   - ✅ Configurations EF Core mises à jour :
-     - `CharacterConfiguration` créée (remplace PlayerConfiguration)
-     - `ClanConfiguration` : suppression de la relation Leader
-     - `FactionConfiguration` : mise à jour des relations
-     - `WorldConfiguration` : mise à jour des relations
-   - ✅ Migration `RefactorPlayerToCharacter` créée et appliquée
-   - ✅ Table MySQL `Players` renommée en `Characters`
-   - ✅ Colonnes ajoutées : `IsPlayer`, `IsClanLeader`, `IsFactionLeader`
-   - ✅ Colonne `LeaderId` supprimée de `Clans`
-   - ✅ Colonne `Tag` ajoutée à `Clans`
-   - ✅ Build réussie (0 erreurs, 0 warnings)
+- [ ] **Amélioration du système de collision**
+  - [ ] Corriger les bugs de collision identifiés
+  - [ ] Implémenter la collision par type de terrain
+  - [ ] Ajouter la collision conditionnelle (équipement, compétences, etc.)
+  - [ ] Gérer les transitions entre terrains
 
-6. **Système monde procédural avec chunks et tiles**
-   - ✅ Enum `TileType` créé (13 types : DeepWater, ShallowWater, Sand, Grass, Dirt, Forest, SparseForest, Hill, Mountain, SnowPeak, Swamp, Ruins, Radioactive)
-   - ✅ Classe `Tile` créée :
-     - Propriétés : Type, WorldX/Y, Elevation, Moisture, Temperature
-     - Propriétés calculées : IsWalkable, MovementCost, CanHaveResources
-     - Méthode `DetermineTypeFromBiome()` : génération basée sur élévation/humidité/température
-   - ✅ Classe `Chunk` créée (32x32 tiles) :
-     - Système de coordonnées : monde ↔ chunk ↔ local
-     - Conversion automatique entre coordonnées
-     - Gestion des coordonnées négatives
-     - LastAccessed pour unload intelligent
-   - ✅ Classe `SimplexNoise` créée :
-     - Algorithme de bruit de Perlin 2D
-     - Support du bruit fractal (octaves multiples)
-     - Méthodes : Generate, GenerateFractal, GenerateNormalized
-     - Table de permutation basée sur seed
-   - ✅ Classe `WorldGenerator` créée :
-     - Génération procédurale basée sur 3 couches de bruit (élévation, humidité, température)
-     - Système de biomes déterministe
-     - Ajout aléatoire de ruines (5% de chance par chunk)
-     - Méthode FindValidSpawnPoint() pour spawn sécurisé
-   - ✅ Classe `ChunkManager` créée :
-     - Streaming de chunks (load/unload automatique)
-     - Cache thread-safe (ConcurrentDictionary)
-     - View distance configurable (défaut: 3 chunks)
-     - Unload des chunks inactifs (défaut: 5 minutes)
-     - Préchargement asynchrone
-   - ✅ Classe `WorldConstants` créée :
-     - ChunkSize = 32 tiles
-     - TileSize = 32 pixels
-     - Paramètres de génération (scales, octaves, persistence, lacunarity)
-   - ✅ Build réussie (0 erreurs, 0 warnings)
+- [ ] **Tests et validation**
+  - [ ] Tester tous les types de terrains
+  - [ ] Valider les collisions dans tous les cas
+  - [ ] Vérifier les performances
 
-7. **Système de rendu MonoGame avec caméra 2D**
-   - ✅ Classe `Camera2D` créée :
-     - Position, rotation et zoom
-     - TransformMatrix pour transformation view
-     - Méthodes : Move, CenterOn, GetVisibleArea
-     - Conversion coordonnées écran ↔ monde
-   - ✅ Classe `TileColors` créée :
-     - Mapping couleur pour les 13 types de tiles
-     - Variation de couleur basée sur coordonnées (pseudo-aléatoire)
-     - Placeholder avant sprites
-   - ✅ Classe `TileRenderer` créée :
-     - Frustum culling : rendu uniquement des chunks visibles
-     - DrawChunk : rendu de tous les tiles d'un chunk
-     - DrawChunkGrid : grille de debug pour visualiser les chunks
-     - Statistiques de rendu (chunks/tiles rendus par frame)
-   - ✅ Classe `Game1` modifiée :
-     - Intégration ChunkManager, Camera2D, TileRenderer
-     - Résolution 1280x720
-     - Contrôles caméra : WASD/Flèches (déplacement), Q/E (zoom)
-     - Toggles debug : F1 (overlay debug), F2 (grille chunks)
-     - Overlay debug avec FPS, position caméra, statistiques rendu
-     - SamplerState.PointClamp pour pixel art
-   - ✅ Configuration projet :
-     - Nullable enabled
-     - ImplicitUsings enabled
-   - ✅ Build réussie (0 erreurs, 0 warnings)
-   - ✅ **Monde procédural visualisable en temps réel!**
+### Priorité Moyenne
+- [ ] Création d'un système de propriétés de tiles
+- [ ] Documentation des types de terrains
+- [ ] Ajout de tests unitaires pour les collisions
 
-8. **Système de mouvement du personnage joueur**
-   - ✅ Classe `PlayerCharacter` créée :
-     - Position dans le monde (Vector2, en pixels)
-     - MoveSpeed configurable (défaut: 150 px/s)
-     - Size du personnage (défaut: 24px)
-     - CollisionBox calculée dynamiquement
-     - Update() : gestion des inputs ZQSD/flèches
-     - TryMove() : mouvement séparé par axe (X puis Y)
-     - CanMoveTo() : vérification collision sur les 4 coins
-     - IsTileWalkable() : vérification walkability via ChunkManager
-   - ✅ Classe `PlayerRenderer` créée :
-     - Rendu rectangle coloré (bleu) pour le personnage
-     - Bordure blanche pour meilleure visibilité
-     - Point central (jaune) pour position exacte
-     - Placeholder avant sprites/animations
-   - ✅ Classe `Game1` modifiée :
-     - Spawn du personnage au point valide (FindSpawnPoint)
-     - Deux modes de caméra :
-       - **Mode Follow** (défaut) : caméra suit le personnage automatiquement
-       - **Mode Free** (F3) : caméra libre avec WASD
-     - Contrôles personnage : ZQSD/flèches pour déplacement
-     - Contrôles caméra : Q/E pour zoom (les deux modes)
-     - Streaming de chunks centré sur le joueur (mode follow) ou caméra (mode free)
-     - Debug overlay mis à jour : position joueur, mode caméra
-     - PlayerRenderer.Dispose() dans cleanup
-   - ✅ Détection de collision fonctionnelle :
-     - Personnage bloqué par DeepWater, Mountain, SnowPeak
-     - Mouvement fluide sur tiles walkable
-     - Vérification des 4 coins de la collision box
-     - Mouvement diagonal normalisé
-   - ✅ Build réussie (0 erreurs, 0 warnings)
-   - ✅ **Personnage contrôlable avec collisions!**
-
-9. **Corrections des contrôles et debug overlay**
-   - ✅ **Correction contrôles de zoom** :
-     - Avant : Q/E (conflit avec Q = déplacement gauche)
-     - Après : +/- (OemPlus/OemMinus + Add/Subtract pavé numérique)
-   - ✅ **Correction mode Free Camera** :
-     - Personnage ne bouge plus en mode Free (player.Update() non appelé)
-     - Caméra contrôlée uniquement avec flèches directionnelles
-     - Résolution du double déplacement personnage + caméra
-   - ✅ **Mode Follow amélioré** :
-     - Personnage contrôlé avec ZQSD ou flèches
-     - Caméra suit automatiquement
-   - ✅ **Debug overlay fonctionnel** :
-     - Ajout DebugFont.spritefont (Arial 14pt)
-     - Font compilée par MonoGame Content Pipeline
-     - Texte maintenant visible
-     - Affichage dynamique des contrôles selon mode caméra
-     - Try/catch pour chargement font (optionnel)
-   - ✅ Fichiers ajoutés :
-     - Content/DebugFont.spritefont
-     - Content/Content.mgcb mis à jour
-   - ✅ Build réussie (0 erreurs, 0 warnings)
-   - ✅ **Contrôles optimisés et debug overlay fonctionnel!**
-
-#### Tâches reportées aux phases suivantes
-
-Les tâches suivantes ont été identifiées mais reportées aux phases ultérieures :
-
-### Phase 3 : Terrains et Collisions
-- Redéfinition des modèles pour les différents types de terrains et leurs spécificités
-- Validation et amélioration du système de collision
-- Propriétés avancées des tiles (traversabilité, ressources, dangers, etc.)
-
-### Phases ultérieures
-- **Système de sprites et animations**
-  - Charger les sprites des tiles
-  - Charger le sprite du personnage
-  - Animation du personnage (marche, idle, etc.)
-
-- **Gameplay et systèmes**
-  - Système d'inventaire de base
-  - Système de ramassage d'items
-  - UI/HUD pour afficher stats joueur
-  - Système de sauvegarde/chargement
-
-- **Infrastructure**
-  - Logging de base (Serilog/NLog)
-  - Tests unitaires pour les modèles
-  - Documentation API
-
-- **Audio**
-  - Son et musique
+### Priorité Basse
+- [ ] Optimisations supplémentaires
+- [ ] Ajout de logs pour debug des collisions
 
 ---
 
@@ -260,243 +75,83 @@ Les tâches suivantes ont été identifiées mais reportées aux phases ultérie
 - `TinySurvivalWorld.Core` : 15 fichiers (5 enums, 5 modèles, 6 classes World)
 - `TinySurvivalWorld.Data` : 7 fichiers (DbContext, Factory, 5 configurations)
 - `TinySurvivalWorld.Shared` : 1 structure (Position)
-- `TinySurvivalWorld.Game.Desktop` : 7 fichiers (Game1, 3 renderers, 1 caméra, 1 entité, appsettings)
+- `TinySurvivalWorld.Game.Desktop` : 11 fichiers (Game1, 4 renderers, 1 caméra, 1 entité, 2 content, appsettings)
+
+**Système de terrains actuel** :
+- 13 types de tiles : DeepWater, ShallowWater, Sand, Grass, Dirt, Forest, SparseForest, Hill, Mountain, SnowPeak, Swamp, Ruins, Radioactive
+- Propriété IsWalkable basique (binaire)
+- Collision par vérification des 4 coins de la collision box
+- Génération procédurale basée sur 3 couches de bruit (élévation, humidité, température)
 
 ---
 
-## Décisions techniques prises
+## Décisions techniques à prendre
 
-### Système de factions et clans
-**Contexte du jeu** :
-- 2 ethnies : Éveillés (mutants) et Inaltérés (non-mutants)
-- 2 factions exclusives par ethnie :
-  - "Éclaireurs de l'Aube Nouvelle" (Éveillés)
-  - "Veilleurs de l'Ancien Monde" (Inaltérés)
-- Clans affiliés ou indépendants avec règles de recrutement complexes
+1. **Structure des propriétés de terrains** :
+   - Classe dédiée `TerrainProperties` ou properties dans `TileType` ?
+   - Stocker en base de données ou hardcodé dans le code ?
 
-**Implémentation** :
-- **Faction** : ID int (seulement 2 factions fixes), ethnie requise, collections de clans et membres
-- **Clan** : ID Guid, FactionId nullable, type ethnique pour clans indépendants, Tag optionnel
-- **Character** (renommé depuis Player) : ID Guid, ethnie obligatoire, FactionId et ClanId nullables
-  - `IsPlayer` : distingue joueurs (true) vs PNJ (false)
-  - `IsClanLeader` : marque le leader du clan (remplace Clan.LeaderId - circularité résolue)
-  - `IsFactionLeader` : marque le leader de la faction
-- **Règles de recrutement** :
-  - Clans de faction : recrutent uniquement membres de leur faction
-  - Clans indépendants : recrutent uniquement sans faction, avec restrictions ethniques
-  - Méthodes `CanJoin()` pour valider les règles métier
+2. **Système de collision avancé** :
+   - Collision conditionnelle par équipement/compétences ?
+   - Gestion des dégâts environnementaux (radioactivité, marécages) ?
 
-### Configuration Entity Framework Core
+3. **Ressources par terrain** :
+   - Intégration avec le système d'items existant ?
+   - Taux d'apparition et régénération des ressources ?
 
-**Choix techniques** :
-- **FluentAPI** au lieu d'attributs pour la configuration des entités
-- **Pomelo MySQL Provider** 9.0.0 pour MySQL
-- **Version MySQL fixe** (8.0.40) dans le DbContextFactory pour éviter connexion au design-time
-- **Pattern DbContextFactory** pour permettre les migrations sans serveur MySQL actif
-- **Cascade delete** uniquement pour World → Characters (suppression logique)
-- **SetNull** pour Faction → Clans/Characters et Clan → Characters (préservation des données)
-
-**Schéma de base de données (après refactoring)** :
-- **Factions** : ID int, unique sur Name
-- **Clans** : ID Guid, FactionId nullable, Tag (5 car. max), pas de LeaderId
-- **Characters** : ID Guid, WorldId obligatoire (cascade), FactionId/ClanId nullables, IsPlayer, IsClanLeader, IsFactionLeader
-- **Worlds** : ID Guid, seed pour génération procédurale
-- **Items** : ID Guid, unique sur Code, index sur Type
-
-### Système monde procédural
-
-**Décisions techniques** :
-- **Chunks de 32x32 tiles** : équilibre entre performances et granularité
-- **Tiles de 32x32 pixels** : standard pour jeux 2D, compatible avec sprites
-- **Monde infini** : génération procédurale à la demande (streaming de chunks)
-- **Bruit de Perlin** : algorithme de SimplexNoise pour génération déterministe
-- **3 couches de bruit** : Elevation, Moisture, Temperature pour variété des biomes
-- **13 types de tiles** : variété suffisante pour monde post-apocalyptique
-- **Streaming intelligent** : chunks chargés/déchargés selon distance de la caméra
-- **Thread-safe** : ConcurrentDictionary pour accès multi-thread
-
-**Architecture** :
-- `Tile` : unité de base du monde (propriétés physiques + gameplay)
-- `Chunk` : conteneur de 32x32 tiles (optimisation mémoire/rendu)
-- `SimplexNoise` : générateur de bruit pour procédural
-- `WorldGenerator` : logique de génération des chunks
-- `ChunkManager` : gestion du cycle de vie des chunks (load/unload/cache)
-- `WorldConstants` : paramètres de configuration centralisés
-
-### Système de rendu MonoGame
-
-**Décisions techniques** :
-- **Caméra 2D avec matrices** : TransformMatrix pour transformations view standardisées
-- **Frustum culling** : rendu uniquement des chunks visibles (optimisation performance)
-- **SamplerState.PointClamp** : sampling pixel-perfect pour style pixel art
-- **Placeholder colors** : couleurs avant implémentation des sprites
-- **Variation de couleur** : pseudo-aléatoire basée sur coordonnées pour variation visuelle
-- **Debug overlay** : statistiques de rendu en temps réel (FPS, chunks/tiles rendus)
-- **Résolution fixe** : 1280x720 pour développement
-
-**Architecture** :
-- `Camera2D` : gestion de la vue (position, zoom, rotation, conversions coordonnées)
-- `TileColors` : mapping couleur pour chaque type de tile
-- `TileRenderer` : rendu optimisé des chunks visibles
-- `PlayerRenderer` : rendu du personnage (placeholder rectangle)
-
-### Système de mouvement du personnage
-
-**Décisions techniques** :
-- **Mouvement basé sur la physique** : vitesse en pixels/seconde avec deltaTime
-- **Collision par coins** : vérification des 4 coins de la collision box (précision)
-- **Séparation d'axes** : mouvement X puis Y séparément (sliding le long des murs)
-- **Normalisation diagonale** : vitesse constante quelle que soit la direction
-- **Tile-based collision** : détection basée sur les propriétés IsWalkable des tiles
-- **Deux modes de caméra** :
-  - **Follow mode** : caméra centrée automatiquement sur le joueur
-  - **Free mode** : caméra libre pour exploration/debug
-- **Streaming centré** : chunks chargés autour du joueur (follow) ou caméra (free)
-
-**Architecture** :
-- `PlayerCharacter` : logique de mouvement, collision, update
-- `PlayerRenderer` : rendu visuel du personnage
-- Intégration dans `Game1` : gestion des deux modes caméra
-
-### Questions en suspens
-1. ~~**Taille du monde**~~ : ✅ Monde infini (génération procédurale)
-2. ~~**Taille des chunks**~~ : ✅ 32x32 tiles
-3. ~~**Taille des tiles**~~ : ✅ 32x32 pixels
-4. **Format de sauvegarde** : Base de données uniquement ou fichiers JSON + DB ?
-5. **Assets graphiques** : Placeholder ou création initiale ?
-6. **Compression des chunks** : Sauvegarder les chunks modifiés ?
+4. **Performance** :
+   - Cache des propriétés de terrains ?
+   - Optimisation des calculs de collision ?
 
 ---
 
-## Notes de développement
+## Fichiers à modifier/créer
 
-### Fichiers créés
+### À créer
+- `Core/World/TerrainProperties.cs` (possible) : Propriétés détaillées par terrain
+- `Core/World/TerrainDefinitions.cs` (possible) : Définitions des 13 terrains
+- `Core/Enums/TerrainResource.cs` (possible) : Types de ressources extractibles
 
-**Shared/Structures/** :
-- `Position.cs` : Structure position 2D avec distance, lerp, opérateurs
+### À modifier
+- `Core/World/Tile.cs` : Ajout de propriétés avancées
+- `Core/World/WorldGenerator.cs` : Ajustements génération si nécessaire
+- `Game.Desktop/Entities/PlayerCharacter.cs` : Amélioration collision
 
-**Core/Enums/** :
-- `Ethnicity.cs` : Éveillés vs Inaltérés
-- `ClanEthnicityType.cs` : Restrictions ethniques des clans
-- `Difficulty.cs` : Niveaux de difficulté du monde
-- `ItemType.cs` : Types d'items (Resource, Tool, Weapon, etc.)
-- `TileType.cs` : Types de tuiles du monde (13 types de terrains/biomes)
+---
 
-**Core/Models/** :
-- `Faction.cs` : Modèle avec validation d'ethnie
-- `Clan.cs` : Modèle avec logique de recrutement complexe (Tag ajouté, LeaderId supprimé)
-- `Character.cs` : Modèle avec statistiques de survie, affiliations et monde (renommé depuis Player.cs, avec IsPlayer, IsClanLeader, IsFactionLeader)
-- ~~`Player.cs`~~ : Supprimé et remplacé par Character.cs
-- `World.cs` : Modèle de monde avec seed, difficulté, taille (Players → Characters)
-- `Item.cs` : Catalogue d'items avec propriétés variées
+## Problèmes identifiés (Phase 2)
 
-**Core/World/** :
-- `Tile.cs` : Représentation d'une tuile (Type, Elevation, Moisture, Temperature, IsWalkable, MovementCost, DetermineTypeFromBiome())
-- `Chunk.cs` : Conteneur de 32x32 tiles avec conversions de coordonnées (world ↔ chunk ↔ local)
-- `SimplexNoise.cs` : Générateur de bruit de Perlin 2D avec support fractal
-- `WorldGenerator.cs` : Générateur procédural de chunks (3 couches de bruit, biomes, ruines aléatoires, FindValidSpawnPoint())
-- `ChunkManager.cs` : Gestionnaire de streaming de chunks (load/unload, cache thread-safe, préchargement async)
-- `WorldConstants.cs` : Constantes (ChunkSize, TileSize, scales de bruit, octaves, persistence, lacunarity)
+1. **Collision pas entièrement fonctionnelle**
+   - Personnage peut parfois passer à travers certains terrains
+   - Besoin de validation approfondie
 
-**Data/** :
-- `GameDbContext.cs` : DbContext principal avec DbSets pour toutes les entités
-- `GameDbContextFactory.cs` : Factory pour design-time DbContext (migrations)
+2. **Propriétés de terrains limitées**
+   - IsWalkable trop simpliste (binaire)
+   - Pas de coût de mouvement différencié
+   - Pas de ressources associées
+   - Pas d'effets environnementaux
 
-**Data/Configurations/** :
-- `FactionConfiguration.cs` : Configuration FluentAPI pour Faction (mise à jour pour Character)
-- `ClanConfiguration.cs` : Configuration FluentAPI pour Clan (suppression relation Leader, ajout Tag)
-- `CharacterConfiguration.cs` : Configuration FluentAPI pour Character (remplace PlayerConfiguration.cs)
-- ~~`PlayerConfiguration.cs`~~ : Supprimé et remplacé par CharacterConfiguration.cs
-- `WorldConfiguration.cs` : Configuration FluentAPI pour World (mise à jour pour Characters)
-- `ItemConfiguration.cs` : Configuration FluentAPI pour Item
-
-**Data/Migrations/** :
-- `20251115162405_InitialCreate.cs` : Migration initiale
-- `20251115162405_InitialCreate.Designer.cs` : Designer de migration
-- `20251115170728_RefactorPlayerToCharacter.cs` : Migration Player → Character (renommage table, ajout colonnes, suppression LeaderId)
-- `20251115170728_RefactorPlayerToCharacter.Designer.cs` : Designer de migration refactoring
-- `GameDbContextModelSnapshot.cs` : Snapshot du modèle EF Core (mis à jour)
-
-**Game.Desktop/** :
-- `appsettings.json` : Configuration production avec connection string MySQL
-- `appsettings.Development.json` : Configuration développement avec logging détaillé
-- `Game1.cs` : Classe principale du jeu (Update, Draw, gestion caméra, personnage, monde)
-- `TinySurvivalWorld.Game.Desktop.csproj` : Configuration projet (Nullable, ImplicitUsings enabled)
-
-**Game.Desktop/Rendering/** :
-- `Camera2D.cs` : Caméra 2D avec zoom, rotation, TransformMatrix
-- `TileColors.cs` : Mapping couleur pour les types de tiles (placeholder)
-- `TileRenderer.cs` : Rendu optimisé des chunks et tiles avec frustum culling
-- `PlayerRenderer.cs` : Rendu du personnage joueur (rectangle coloré placeholder)
-
-**Game.Desktop/Entities/** :
-- `PlayerCharacter.cs` : Logique de mouvement et collision du personnage joueur
-
-**Game.Desktop/Content/** :
-- `DebugFont.spritefont` : Définition de la SpriteFont pour debug overlay (Arial 14pt)
-- `Content.mgcb` : Configuration MonoGame Content Pipeline
-
-### Problèmes rencontrés et solutions
-
-1. **dotnet-ef non installé**
-   - **Problème** : L'outil global dotnet-ef n'était pas installé
-   - **Solution** : `dotnet tool install --global dotnet-ef --version 9.0.0`
-
-2. **Incompatibilité de version dotnet-ef**
-   - **Problème** : Installation initiale de dotnet-ef 10.0.0 incompatible avec EF Core 9.0.0
-   - **Erreur** : `FileNotFoundException: System.Runtime, Version=10.0.0.0`
-   - **Solution** : Désinstallation de 10.0.0 et installation de 9.0.0 spécifiquement
-
-3. **EF Core Design manquant dans Game.Desktop**
-   - **Problème** : Le projet startup n'avait pas la référence Microsoft.EntityFrameworkCore.Design
-   - **Solution** : Ajout du package au projet Game.Desktop
-
-4. **ServerVersion.AutoDetect nécessite MySQL actif**
-   - **Problème** : Le DbContextFactory utilisait AutoDetect qui essayait de se connecter à MySQL
-   - **Erreur** : `Unable to connect to any of the specified MySQL hosts`
-   - **Solution** : Utilisation d'une version MySQL fixe (8.0.40) dans le factory pour design-time
-
-5. **Conflit de contrôles Q/E pour zoom**
-   - **Problème** : Touche Q utilisée à la fois pour zoom arrière et déplacement gauche
-   - **Impact** : Le personnage se déplaçait en même temps que le zoom
-   - **Solution** : Changement des contrôles de zoom vers +/- (OemPlus/OemMinus et pavé numérique)
-
-6. **Double déplacement en mode Free Camera**
-   - **Problème** : En mode Free, les touches S/D et flèches déplaçaient à la fois le personnage et la caméra
-   - **Solution** :
-     - Mode Free : player.Update() non appelé, seules les flèches contrôlent la caméra
-     - Mode Follow : ZQSD et flèches contrôlent le personnage, caméra suit automatiquement
-
-7. **Debug overlay vide**
-   - **Problème** : Le debug overlay s'affichait mais sans texte (pas de SpriteFont)
-   - **Solution** :
-     - Création de DebugFont.spritefont (Arial 14pt)
-     - Ajout au Content Pipeline MonoGame
-     - Chargement avec try/catch (optionnel)
+3. **Transitions abruptes**
+   - Pas de gestion des bordures entre terrains
+   - Pas de ralentissement progressif
 
 ---
 
 ## Statistiques
 
-**Fichiers créés** : 39 (1 structure, 5 enums, 5 modèles, 6 classes World, 1 DbContext, 1 Factory, 5 configurations, 5 migrations, 2 appsettings, 1 Game1, 4 renderers, 1 entité, 1 spritefont, 1 mgcb)
-**Fichiers supprimés** : 2 (Player.cs, PlayerConfiguration.cs - remplacés par Character.cs et CharacterConfiguration.cs)
-**Lignes de code ajoutées** : ~3450
-**Commits** : 7 (init + modèles + EF Core config + refactoring Character + monde + rendu + mouvement + corrections)
+**Fichiers créés** : 0 (Phase 3 vient de démarrer)
+**Lignes de code ajoutées** : 0
+**Commits** : 0
 **Tests** : 0
-**Build** : ✅ Réussie (0 erreurs, 0 warnings)
-**Base de données** : ✅ Mise à jour avec table Characters
-**Système monde** : ✅ Génération procédurale fonctionnelle (chunks 32x32, 13 types de tiles, streaming intelligent)
-**Système rendu** : ✅ MonoGame avec caméra 2D, frustum culling, debug overlay avec texte
-**Système mouvement** : ✅ Personnage contrôlable avec collisions tile-based, deux modes caméra optimisés
-**Contrôles** : ✅ Zoom +/-, mouvement ZQSD/flèches, modes Follow/Free sans conflits
+**Build** : ✅ Réussie (hérité de Phase 2)
 
 ---
 
 ## Références utiles
 
-- [MonoGame 2D Camera Tutorial](https://www.monogame.net/documentation/?page=Tutorials)
-- [EF Core Migrations](https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/)
-- [Perlin Noise for Terrain Generation](https://en.wikipedia.org/wiki/Perlin_noise)
+- [Phase 2 - Documentation](docs/progression/fondation-du-jeu.md)
+- [Tile-based collision detection](https://developer.mozilla.org/en-US/docs/Games/Techniques/Tilemaps)
+- [Procedural terrain generation](https://www.redblobgames.com/maps/terrain-from-noise/)
 
 ---
 
