@@ -198,6 +198,29 @@ Initialiser la branche de la phase 2 et commencer l'implémentation des modèles
    - ✅ Build réussie (0 erreurs, 0 warnings)
    - ✅ **Personnage contrôlable avec collisions!**
 
+9. **Corrections des contrôles et debug overlay**
+   - ✅ **Correction contrôles de zoom** :
+     - Avant : Q/E (conflit avec Q = déplacement gauche)
+     - Après : +/- (OemPlus/OemMinus + Add/Subtract pavé numérique)
+   - ✅ **Correction mode Free Camera** :
+     - Personnage ne bouge plus en mode Free (player.Update() non appelé)
+     - Caméra contrôlée uniquement avec flèches directionnelles
+     - Résolution du double déplacement personnage + caméra
+   - ✅ **Mode Follow amélioré** :
+     - Personnage contrôlé avec ZQSD ou flèches
+     - Caméra suit automatiquement
+   - ✅ **Debug overlay fonctionnel** :
+     - Ajout DebugFont.spritefont (Arial 14pt)
+     - Font compilée par MonoGame Content Pipeline
+     - Texte maintenant visible
+     - Affichage dynamique des contrôles selon mode caméra
+     - Try/catch pour chargement font (optionnel)
+   - ✅ Fichiers ajoutés :
+     - Content/DebugFont.spritefont
+     - Content/Content.mgcb mis à jour
+   - ✅ Build réussie (0 erreurs, 0 warnings)
+   - ✅ **Contrôles optimisés et debug overlay fonctionnel!**
+
 #### Tâches à réaliser
 
 ### Priorité Haute
@@ -410,6 +433,10 @@ Initialiser la branche de la phase 2 et commencer l'implémentation des modèles
 **Game.Desktop/Entities/** :
 - `PlayerCharacter.cs` : Logique de mouvement et collision du personnage joueur
 
+**Game.Desktop/Content/** :
+- `DebugFont.spritefont` : Définition de la SpriteFont pour debug overlay (Arial 14pt)
+- `Content.mgcb` : Configuration MonoGame Content Pipeline
+
 ### Problèmes rencontrés et solutions
 
 1. **dotnet-ef non installé**
@@ -430,20 +457,39 @@ Initialiser la branche de la phase 2 et commencer l'implémentation des modèles
    - **Erreur** : `Unable to connect to any of the specified MySQL hosts`
    - **Solution** : Utilisation d'une version MySQL fixe (8.0.40) dans le factory pour design-time
 
+5. **Conflit de contrôles Q/E pour zoom**
+   - **Problème** : Touche Q utilisée à la fois pour zoom arrière et déplacement gauche
+   - **Impact** : Le personnage se déplaçait en même temps que le zoom
+   - **Solution** : Changement des contrôles de zoom vers +/- (OemPlus/OemMinus et pavé numérique)
+
+6. **Double déplacement en mode Free Camera**
+   - **Problème** : En mode Free, les touches S/D et flèches déplaçaient à la fois le personnage et la caméra
+   - **Solution** :
+     - Mode Free : player.Update() non appelé, seules les flèches contrôlent la caméra
+     - Mode Follow : ZQSD et flèches contrôlent le personnage, caméra suit automatiquement
+
+7. **Debug overlay vide**
+   - **Problème** : Le debug overlay s'affichait mais sans texte (pas de SpriteFont)
+   - **Solution** :
+     - Création de DebugFont.spritefont (Arial 14pt)
+     - Ajout au Content Pipeline MonoGame
+     - Chargement avec try/catch (optionnel)
+
 ---
 
 ## Statistiques
 
-**Fichiers créés** : 37 (1 structure, 5 enums, 5 modèles, 6 classes World, 1 DbContext, 1 Factory, 5 configurations, 5 migrations, 2 appsettings, 1 Game1, 4 renderers, 1 entité)
+**Fichiers créés** : 39 (1 structure, 5 enums, 5 modèles, 6 classes World, 1 DbContext, 1 Factory, 5 configurations, 5 migrations, 2 appsettings, 1 Game1, 4 renderers, 1 entité, 1 spritefont, 1 mgcb)
 **Fichiers supprimés** : 2 (Player.cs, PlayerConfiguration.cs - remplacés par Character.cs et CharacterConfiguration.cs)
-**Lignes de code ajoutées** : ~3350
-**Commits** : 6 (init + modèles + EF Core config + refactoring Character + monde + rendu + mouvement)
+**Lignes de code ajoutées** : ~3450
+**Commits** : 7 (init + modèles + EF Core config + refactoring Character + monde + rendu + mouvement + corrections)
 **Tests** : 0
 **Build** : ✅ Réussie (0 erreurs, 0 warnings)
 **Base de données** : ✅ Mise à jour avec table Characters
 **Système monde** : ✅ Génération procédurale fonctionnelle (chunks 32x32, 13 types de tiles, streaming intelligent)
-**Système rendu** : ✅ MonoGame avec caméra 2D, frustum culling, debug overlay
-**Système mouvement** : ✅ Personnage contrôlable avec collisions tile-based, deux modes caméra
+**Système rendu** : ✅ MonoGame avec caméra 2D, frustum culling, debug overlay avec texte
+**Système mouvement** : ✅ Personnage contrôlable avec collisions tile-based, deux modes caméra optimisés
+**Contrôles** : ✅ Zoom +/-, mouvement ZQSD/flèches, modes Follow/Free sans conflits
 
 ---
 
