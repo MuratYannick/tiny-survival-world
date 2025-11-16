@@ -2,7 +2,7 @@
 
 **Branche** : `feature/phase2-foundations`
 **Dernière mise à jour** : 2025-11-15
-**Statut** : En cours - Système monde procédural implémenté
+**Statut** : En cours - Rendu MonoGame implémenté (jeu visualisable!)
 
 ---
 
