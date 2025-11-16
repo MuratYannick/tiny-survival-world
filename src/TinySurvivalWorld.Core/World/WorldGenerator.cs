@@ -61,35 +61,36 @@ public class WorldGenerator
     {
         var tile = new Tile(worldX, worldY);
 
-        // Générer l'élévation avec du bruit fractal + scale et offset configurables
+        // Générer l'élévation avec du bruit fractal
         float elevationRaw = _elevationNoise.GenerateNormalized(
-            worldX * _config.ElevationScale,
-            worldY * _config.ElevationScale,
+            worldX * WorldConstants.ElevationScale,
+            worldY * WorldConstants.ElevationScale,
             _config.ElevationOctaves,
             _config.ElevationPersistence,
             _config.ElevationLacunarity
         );
-        float elevation = Math.Clamp(elevationRaw + _config.ElevationOffset, 0f, 1f);
+        // Appliquer transformation Scale/Offset : offset + (value - 0.5) * scale
+        float elevation = Math.Clamp(_config.ElevationOffset + (elevationRaw - 0.5f) * _config.ElevationScale, 0f, 1f);
 
-        // Générer l'humidité + scale et offset configurables
+        // Générer l'humidité
         float moistureRaw = _moistureNoise.GenerateNormalized(
-            worldX * _config.MoistureScale,
-            worldY * _config.MoistureScale,
+            worldX * WorldConstants.MoistureScale,
+            worldY * WorldConstants.MoistureScale,
             _config.MoistureOctaves,
             _config.MoisturePersistence,
             _config.MoistureLacunarity
         );
-        float moisture = Math.Clamp(moistureRaw + _config.MoistureOffset, 0f, 1f);
+        float moisture = Math.Clamp(_config.MoistureOffset + (moistureRaw - 0.5f) * _config.MoistureScale, 0f, 1f);
 
-        // Générer la température + scale et offset configurables (affectée par la latitude et l'élévation)
+        // Générer la température (affectée par la latitude et l'élévation)
         float baseTempRaw = _temperatureNoise.GenerateNormalized(
-            worldX * _config.TemperatureScale,
-            worldY * _config.TemperatureScale,
+            worldX * WorldConstants.TemperatureScale,
+            worldY * WorldConstants.TemperatureScale,
             _config.TemperatureOctaves,
             _config.TemperaturePersistence,
             _config.TemperatureLacunarity
         );
-        float baseTemp = Math.Clamp(baseTempRaw + _config.TemperatureOffset, 0f, 1f);
+        float baseTemp = Math.Clamp(_config.TemperatureOffset + (baseTempRaw - 0.5f) * _config.TemperatureScale, 0f, 1f);
 
         // La température diminue avec l'élévation et la latitude
         float latitudeEffect = 1.0f - Math.Abs(worldY * 0.0001f); // Effet simplifié de latitude

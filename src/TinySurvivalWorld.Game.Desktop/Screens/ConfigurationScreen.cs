@@ -55,20 +55,20 @@ public class ConfigurationScreen
             new ConfigParam("Elevation Octaves", () => _config.ElevationOctaves, v => _config.ElevationOctaves = v, 1, 8, 1),
             new ConfigParam("Elevation Persistence", () => _config.ElevationPersistence, v => _config.ElevationPersistence = v, 0.1f, 1.0f, 0.05f),
             new ConfigParam("Elevation Lacunarity", () => _config.ElevationLacunarity, v => _config.ElevationLacunarity = v, 1.0f, 4.0f, 0.1f),
-            new ConfigParam("Elevation Scale", () => _config.ElevationScale, v => _config.ElevationScale = v, 0.001f, 0.1f, 0.001f),
-            new ConfigParam("Elevation Offset", () => _config.ElevationOffset, v => _config.ElevationOffset = v, -0.5f, 0.5f, 0.05f),
+            new ConfigParam("Elevation Scale", () => _config.ElevationScale, v => _config.ElevationScale = v, 0.1f, 2.0f, 0.05f),
+            new ConfigParam("Elevation Offset", () => _config.ElevationOffset, v => _config.ElevationOffset = v, 0.0f, 1.0f, 0.05f),
 
             new ConfigParam("Moisture Octaves", () => _config.MoistureOctaves, v => _config.MoistureOctaves = v, 1, 8, 1),
             new ConfigParam("Moisture Persistence", () => _config.MoisturePersistence, v => _config.MoisturePersistence = v, 0.1f, 1.0f, 0.05f),
             new ConfigParam("Moisture Lacunarity", () => _config.MoistureLacunarity, v => _config.MoistureLacunarity = v, 1.0f, 4.0f, 0.1f),
-            new ConfigParam("Moisture Scale", () => _config.MoistureScale, v => _config.MoistureScale = v, 0.001f, 0.1f, 0.001f),
-            new ConfigParam("Moisture Offset", () => _config.MoistureOffset, v => _config.MoistureOffset = v, -0.5f, 0.5f, 0.05f),
+            new ConfigParam("Moisture Scale", () => _config.MoistureScale, v => _config.MoistureScale = v, 0.1f, 2.0f, 0.05f),
+            new ConfigParam("Moisture Offset", () => _config.MoistureOffset, v => _config.MoistureOffset = v, 0.0f, 1.0f, 0.05f),
 
             new ConfigParam("Temperature Octaves", () => _config.TemperatureOctaves, v => _config.TemperatureOctaves = v, 1, 8, 1),
             new ConfigParam("Temperature Persistence", () => _config.TemperaturePersistence, v => _config.TemperaturePersistence = v, 0.1f, 1.0f, 0.05f),
             new ConfigParam("Temperature Lacunarity", () => _config.TemperatureLacunarity, v => _config.TemperatureLacunarity = v, 1.0f, 4.0f, 0.1f),
-            new ConfigParam("Temperature Scale", () => _config.TemperatureScale, v => _config.TemperatureScale = v, 0.001f, 0.1f, 0.001f),
-            new ConfigParam("Temperature Offset", () => _config.TemperatureOffset, v => _config.TemperatureOffset = v, -0.5f, 0.5f, 0.05f),
+            new ConfigParam("Temperature Scale", () => _config.TemperatureScale, v => _config.TemperatureScale = v, 0.1f, 2.0f, 0.05f),
+            new ConfigParam("Temperature Offset", () => _config.TemperatureOffset, v => _config.TemperatureOffset = v, 0.0f, 1.0f, 0.05f),
         };
 
         CreatePixelTexture();
