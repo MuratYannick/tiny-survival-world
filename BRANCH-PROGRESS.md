@@ -2,7 +2,7 @@
 
 **Branche** : `feature/phase2-foundations`
 **Dernière mise à jour** : 2025-11-15
-**Statut** : En cours - Refactoring Player → Character terminé
+**Statut** : En cours - Système monde procédural implémenté
 
 ---
 
@@ -104,20 +104,50 @@ Initialiser la branche de la phase 2 et commencer l'implémentation des modèles
    - ✅ Colonne `Tag` ajoutée à `Clans`
    - ✅ Build réussie (0 erreurs, 0 warnings)
 
+6. **Système monde procédural avec chunks et tiles**
+   - ✅ Enum `TileType` créé (13 types : DeepWater, ShallowWater, Sand, Grass, Dirt, Forest, SparseForest, Hill, Mountain, SnowPeak, Swamp, Ruins, Radioactive)
+   - ✅ Classe `Tile` créée :
+     - Propriétés : Type, WorldX/Y, Elevation, Moisture, Temperature
+     - Propriétés calculées : IsWalkable, MovementCost, CanHaveResources
+     - Méthode `DetermineTypeFromBiome()` : génération basée sur élévation/humidité/température
+   - ✅ Classe `Chunk` créée (32x32 tiles) :
+     - Système de coordonnées : monde ↔ chunk ↔ local
+     - Conversion automatique entre coordonnées
+     - Gestion des coordonnées négatives
+     - LastAccessed pour unload intelligent
+   - ✅ Classe `SimplexNoise` créée :
+     - Algorithme de bruit de Perlin 2D
+     - Support du bruit fractal (octaves multiples)
+     - Méthodes : Generate, GenerateFractal, GenerateNormalized
+     - Table de permutation basée sur seed
+   - ✅ Classe `WorldGenerator` créée :
+     - Génération procédurale basée sur 3 couches de bruit (élévation, humidité, température)
+     - Système de biomes déterministe
+     - Ajout aléatoire de ruines (5% de chance par chunk)
+     - Méthode FindValidSpawnPoint() pour spawn sécurisé
+   - ✅ Classe `ChunkManager` créée :
+     - Streaming de chunks (load/unload automatique)
+     - Cache thread-safe (ConcurrentDictionary)
+     - View distance configurable (défaut: 3 chunks)
+     - Unload des chunks inactifs (défaut: 5 minutes)
+     - Préchargement asynchrone
+   - ✅ Classe `WorldConstants` créée :
+     - ChunkSize = 32 tiles
+     - TileSize = 32 pixels
+     - Paramètres de génération (scales, octaves, persistence, lacunarity)
+   - ✅ Build réussie (0 erreurs, 0 warnings)
+
 #### Tâches à réaliser
 
 ### Priorité Haute
-- [ ] Implémenter le système de monde basique
-  - [ ] Génération simple de terrain
-  - [ ] Structure de chunks
-  - [ ] Tiles
-- [ ] Créer le système de joueur basique
-  - [ ] Statistiques de base
-  - [ ] Position et mouvement
 - [ ] Mettre en place le rendu MonoGame basique
   - [ ] Caméra 2D
-  - [ ] Rendu du monde
-  - [ ] Rendu du joueur
+  - [ ] Rendu du monde (chunks/tiles)
+  - [ ] Rendu du personnage
+- [ ] Système de mouvement du personnage
+  - [ ] Input clavier/souris
+  - [ ] Collision avec les tiles non traversables
+  - [ ] Animation basique
 
 ### Priorité Moyenne
 - [ ] Système de configuration (appsettings.json)
@@ -181,12 +211,33 @@ Initialiser la branche de la phase 2 et commencer l'implémentation des modèles
 - **Worlds** : ID Guid, seed pour génération procédurale
 - **Items** : ID Guid, unique sur Code, index sur Type
 
+### Système monde procédural
+
+**Décisions techniques** :
+- **Chunks de 32x32 tiles** : équilibre entre performances et granularité
+- **Tiles de 32x32 pixels** : standard pour jeux 2D, compatible avec sprites
+- **Monde infini** : génération procédurale à la demande (streaming de chunks)
+- **Bruit de Perlin** : algorithme de SimplexNoise pour génération déterministe
+- **3 couches de bruit** : Elevation, Moisture, Temperature pour variété des biomes
+- **13 types de tiles** : variété suffisante pour monde post-apocalyptique
+- **Streaming intelligent** : chunks chargés/déchargés selon distance de la caméra
+- **Thread-safe** : ConcurrentDictionary pour accès multi-thread
+
+**Architecture** :
+- `Tile` : unité de base du monde (propriétés physiques + gameplay)
+- `Chunk` : conteneur de 32x32 tiles (optimisation mémoire/rendu)
+- `SimplexNoise` : générateur de bruit pour procédural
+- `WorldGenerator` : logique de génération des chunks
+- `ChunkManager` : gestion du cycle de vie des chunks (load/unload/cache)
+- `WorldConstants` : paramètres de configuration centralisés
+
 ### Questions en suspens
-1. **Taille du monde** : Monde infini ou délimité ?
-2. **Taille des chunks** : 16x16 ou 32x32 tiles ?
-3. **Taille des tiles** : 32x32 ou 64x64 pixels ?
+1. ~~**Taille du monde**~~ : ✅ Monde infini (génération procédurale)
+2. ~~**Taille des chunks**~~ : ✅ 32x32 tiles
+3. ~~**Taille des tiles**~~ : ✅ 32x32 pixels
 4. **Format de sauvegarde** : Base de données uniquement ou fichiers JSON + DB ?
 5. **Assets graphiques** : Placeholder ou création initiale ?
+6. **Compression des chunks** : Sauvegarder les chunks modifiés ?
 
 ---
 
@@ -202,6 +253,7 @@ Initialiser la branche de la phase 2 et commencer l'implémentation des modèles
 - `ClanEthnicityType.cs` : Restrictions ethniques des clans
 - `Difficulty.cs` : Niveaux de difficulté du monde
 - `ItemType.cs` : Types d'items (Resource, Tool, Weapon, etc.)
+- `TileType.cs` : Types de tuiles du monde (13 types de terrains/biomes)
 
 **Core/Models/** :
 - `Faction.cs` : Modèle avec validation d'ethnie
@@ -210,6 +262,14 @@ Initialiser la branche de la phase 2 et commencer l'implémentation des modèles
 - ~~`Player.cs`~~ : Supprimé et remplacé par Character.cs
 - `World.cs` : Modèle de monde avec seed, difficulté, taille (Players → Characters)
 - `Item.cs` : Catalogue d'items avec propriétés variées
+
+**Core/World/** :
+- `Tile.cs` : Représentation d'une tuile (Type, Elevation, Moisture, Temperature, IsWalkable, MovementCost, DetermineTypeFromBiome())
+- `Chunk.cs` : Conteneur de 32x32 tiles avec conversions de coordonnées (world ↔ chunk ↔ local)
+- `SimplexNoise.cs` : Générateur de bruit de Perlin 2D avec support fractal
+- `WorldGenerator.cs` : Générateur procédural de chunks (3 couches de bruit, biomes, ruines aléatoires, FindValidSpawnPoint())
+- `ChunkManager.cs` : Gestionnaire de streaming de chunks (load/unload, cache thread-safe, préchargement async)
+- `WorldConstants.cs` : Constantes (ChunkSize, TileSize, scales de bruit, octaves, persistence, lacunarity)
 
 **Data/** :
 - `GameDbContext.cs` : DbContext principal avec DbSets pour toutes les entités
@@ -258,13 +318,14 @@ Initialiser la branche de la phase 2 et commencer l'implémentation des modèles
 
 ## Statistiques
 
-**Fichiers créés** : 21 (1 structure, 4 enums, 5 modèles, 1 DbContext, 1 Factory, 5 configurations, 5 migrations, 2 appsettings)
+**Fichiers créés** : 28 (1 structure, 5 enums, 5 modèles, 6 classes World, 1 DbContext, 1 Factory, 5 configurations, 5 migrations, 2 appsettings)
 **Fichiers supprimés** : 2 (Player.cs, PlayerConfiguration.cs - remplacés par Character.cs et CharacterConfiguration.cs)
-**Lignes de code ajoutées** : ~1600
-**Commits** : 3 (init + modèles + EF Core config) - Prochain: Refactoring Player → Character
+**Lignes de code ajoutées** : ~2600
+**Commits** : 4 (init + modèles + EF Core config + refactoring Character) - Prochain: Système monde
 **Tests** : 0
 **Build** : ✅ Réussie (0 erreurs, 0 warnings)
-**Base de données** : ✅ Mise à jour avec table Characters (3 nouvelles colonnes, circularité résolue)
+**Base de données** : ✅ Mise à jour avec table Characters
+**Système monde** : ✅ Génération procédurale fonctionnelle (chunks 32x32, 13 types de tiles, streaming intelligent)
 
 ---
 
