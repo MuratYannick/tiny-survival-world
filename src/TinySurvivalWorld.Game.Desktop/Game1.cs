@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Extensions.Configuration;
 using TinySurvivalWorld.Core.World;
+using TinySurvivalWorld.Core.Time;
 using TinySurvivalWorld.Game.Desktop.Entities;
 using TinySurvivalWorld.Game.Desktop.Rendering;
 using TinySurvivalWorld.Game.Desktop.Screens;
@@ -38,6 +39,9 @@ public class Game1 : XnaGame
     // Légende
     private LegendRenderer? _legendRenderer;
     private bool _showLegend = false;
+
+    // Gestion du temps
+    private TimeManager? _timeManager;
 
     // Input
     private KeyboardState _previousKeyboardState;
@@ -132,6 +136,11 @@ public class Game1 : XnaGame
 
         // Créer le personnage joueur au spawn point
         _player = new PlayerCharacter(_chunkManager, spawnPosition);
+
+        // Initialiser le système de temps
+        _timeManager = new TimeManager();
+        GameLogger.Info($"TimeManager initialisé - Heure actuelle IG: {_timeManager.GetFormattedDateTime()}");
+        GameLogger.Info($"Jour {_timeManager.CurrentDay} - {_timeManager.GetTimeOfDayName()}");
 
         // Centrer la caméra sur le joueur
         _camera.CenterOn(_player.Position);
@@ -271,6 +280,12 @@ public class Game1 : XnaGame
                 int referenceTileY = (int)(referencePosition.Y / WorldConstants.TileSize);
                 _chunkManager.LoadChunksAroundPosition(referenceTileX, referenceTileY);
             }
+
+            // Mettre à jour le système de temps
+            if (_timeManager != null)
+            {
+                _timeManager.Update();
+            }
             }
         } // Fin du else (mode jeu normal)
 
@@ -366,7 +381,7 @@ public class Game1 : XnaGame
         var debugTexture = new Texture2D(GraphicsDevice, 1, 1);
         debugTexture.SetData(new[] { new Color(0, 0, 0, 150) });
 
-        _spriteBatch.Draw(debugTexture, new Rectangle(5, 5, 400, 240), Color.White);
+        _spriteBatch.Draw(debugTexture, new Rectangle(5, 5, 450, 300), Color.White);
 
         // Afficher les infos textuelles (si on a une font)
         if (_debugFont != null)
@@ -392,6 +407,16 @@ public class Game1 : XnaGame
             y += lineHeight;
             DrawDebugText($"Tiles rendered: {_tileRenderer.TilesRenderedLastFrame}", 10, y);
             y += lineHeight;
+
+            // Informations de temps
+            if (_timeManager != null)
+            {
+                y += lineHeight / 2; // Petit espace
+                DrawDebugText($"Time: {_timeManager.GetFormattedTime()}", 10, y);
+                y += lineHeight;
+                DrawDebugText($"Period: {_timeManager.GetTimeOfDayName()}", 10, y);
+                y += lineHeight;
+            }
 
             if (_freeCameraMode)
             {

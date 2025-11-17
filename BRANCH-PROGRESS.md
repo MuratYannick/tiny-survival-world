@@ -43,7 +43,19 @@ Démarrer la phase 4 en concevant l'architecture des systèmes de temps et de su
 
 #### Tâches complétées ✅
 
-(Aucune pour l'instant - Phase 4 vient de démarrer)
+1. **Système de temps continu implémenté**
+   - ✅ TimeOfDay enum créé (6 périodes: Night, Dawn, Morning, Afternoon, Dusk, Evening)
+   - ✅ TimeManager créé avec horloge continue basée sur DateTime.UtcNow
+   - ✅ Ratio temps : 1 jour IG (24h) = 20h IRL
+   - ✅ Date d'initialisation : 01/01/2025 00:00 UTC IRL → 01/01/2125 00:00 UTC IG
+   - ✅ Temps s'écoule même hors ligne (persistant)
+   - ✅ Événements : OnHourChanged, OnDayChanged, OnTimeOfDayChanged
+   - ✅ Propriétés exposées : CurrentGameTime, CurrentDay, CurrentHour, CurrentTimeOfDay, IsDay, IsNight, IsTwilight
+   - ✅ Méthodes utilitaires : GetFormattedTime(), GetFormattedDateTime(), GetTimeOfDayName()
+   - ✅ Conversions temps IG ↔ temps IRL
+   - ✅ TimeManager intégré dans Game1 (Initialize + Update)
+   - ✅ Affichage debug overlay (Time + Period)
+   - ✅ Build réussi : 0 erreurs, 0 avertissements
 
 ---
 
@@ -132,11 +144,17 @@ Démarrer la phase 4 en concevant l'architecture des systèmes de temps et de su
 
 ## Statistiques (Phase 4)
 
-**Fichiers créés** : 0 (Phase 4 vient de démarrer)
-**Lignes de code ajoutées** : 0
-**Commits** : 0
-**Tests** : 0
-**Build** : ✅ Héritée de Phase 3
+**Fichiers créés** : 2
+- Core/Time/TimeOfDay.cs
+- Core/Time/TimeManager.cs
+
+**Fichiers modifiés** : 1
+- Game.Desktop/Game1.cs
+
+**Lignes de code ajoutées** : ~280
+**Commits** : 1
+**Tests** : Temps s'écoule correctement, événements fonctionnels
+**Build** : ✅ 0 erreurs, 0 avertissements
 
 ---
 
