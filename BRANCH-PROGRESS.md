@@ -183,6 +183,21 @@ Démarrer la phase 3 en analysant le système actuel et en planifiant les améli
    - ✅ Helpers ajoutés dans Tile.cs (tile.HasReducedVisibility, tile.HasReducedStealth, tile.HasPoorCover)
    - ✅ Build réussi : 0 erreurs, 0 avertissements
 
+15. **Blending visuel entre terrains (transitions)**
+   - ✅ **Système de transitions douces** : Gradients entre types de terrains différents
+   - ✅ **Division des tiles** : Chaque tile divisée en 9 zones (centre + 4 bordures + 4 coins)
+     - Centre : Couleur pure du terrain (50% de la tile)
+     - Bordures : Gradient en 4 étapes vers voisin si type différent (25% de la tile par côté)
+     - Coins : Interpolation intelligente selon 2 voisins adjacents
+   - ✅ **TileColors.Lerp()** : Méthode d'interpolation linéaire entre 2 couleurs
+   - ✅ **TileRenderer refonte** :
+     - DrawTile() : Système de blending complet
+     - GetTileAt() : Récupération des voisins (N, S, E, W)
+     - DrawBorder() : Gradient progressif vers voisin différent
+     - DrawCorner() : Blend selon 2 voisins adjacents (0.5-0.7 blend factor)
+   - ✅ **Résultat visuel** : Transitions naturelles océan→plage→herbe, forêt→prairie, etc.
+   - ✅ Build réussi : 0 erreurs, 0 avertissements
+
 #### Tâches à réaliser
 
 ### Priorité Haute
