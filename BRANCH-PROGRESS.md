@@ -57,6 +57,18 @@ Démarrer la phase 4 en concevant l'architecture des systèmes de temps et de su
    - ✅ Affichage debug overlay (Time + Period)
    - ✅ Build réussi : 0 erreurs, 0 avertissements
 
+2. **Cycle jour/nuit dynamique avec variations saisonnières**
+   - ✅ Calculs saisonniers ajoutés au TimeManager
+   - ✅ Propriétés : DayOfYear, SunriseHour, SunsetHour, DaylightDuration, LightIntensity
+   - ✅ Durée jour varie : 10h (hiver) à 18h (été) - variation sinusoïdale
+   - ✅ Lever/coucher soleil centré sur 12h midi, varie selon saison
+   - ✅ Transitions aube/crépuscule : 1h chacune avec interpolation douce
+   - ✅ Intensité lumineuse : 0.15 (nuit) à 1.0 (jour)
+   - ✅ DayNightCycleRenderer créé (overlay plein écran)
+   - ✅ Effet visuel : teinte bleu foncé la nuit (alpha 70% max)
+   - ✅ Intégré dans Game1 (rendu entre monde et debug overlay)
+   - ✅ Build réussi : 0 erreurs, 0 avertissements
+
 ---
 
 ## Architecture technique envisagée
@@ -144,16 +156,18 @@ Démarrer la phase 4 en concevant l'architecture des systèmes de temps et de su
 
 ## Statistiques (Phase 4)
 
-**Fichiers créés** : 2
+**Fichiers créés** : 3
 - Core/Time/TimeOfDay.cs
 - Core/Time/TimeManager.cs
+- Game.Desktop/Rendering/DayNightCycleRenderer.cs
 
-**Fichiers modifiés** : 1
+**Fichiers modifiés** : 2
+- Core/Time/TimeManager.cs (ajout calculs saisonniers)
 - Game.Desktop/Game1.cs
 
-**Lignes de code ajoutées** : ~280
-**Commits** : 1
-**Tests** : Temps s'écoule correctement, événements fonctionnels
+**Lignes de code ajoutées** : ~500
+**Commits** : 2
+**Tests** : Temps s'écoule correctement, événements fonctionnels, cycle jour/nuit visuel
 **Build** : ✅ 0 erreurs, 0 avertissements
 
 ---
