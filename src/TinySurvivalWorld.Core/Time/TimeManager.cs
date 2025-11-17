@@ -115,6 +115,33 @@ public class TimeManager
     /// </summary>
     public bool IsTwilight => CurrentTimeOfDay is TimeOfDay.Dawn or TimeOfDay.Dusk;
 
+    /// <summary>
+    /// Jour de l'année (1-365) dans le calendrier IG.
+    /// </summary>
+    public int DayOfYear => CurrentGameTime.DayOfYear;
+
+    /// <summary>
+    /// Heure du lever du soleil (début de l'aube) selon la saison (varie de 5h à 7h).
+    /// </summary>
+    public float SunriseHour => CalculateSunriseHour();
+
+    /// <summary>
+    /// Heure du coucher du soleil (début du crépuscule) selon la saison (varie de 17h à 19h).
+    /// </summary>
+    public float SunsetHour => CalculateSunsetHour();
+
+    /// <summary>
+    /// Durée totale de lumière (aube + jour + crépuscule) en heures.
+    /// Varie de 10h en hiver à 18h en été.
+    /// </summary>
+    public float DaylightDuration => CalculateDaylightDuration();
+
+    /// <summary>
+    /// Intensité lumineuse actuelle (0.0 = nuit noire, 1.0 = plein jour).
+    /// Transitions douces à l'aube et au crépuscule.
+    /// </summary>
+    public float LightIntensity => CalculateLightIntensity();
+
     // ========================================
     // ÉVÉNEMENTS
     // ========================================
@@ -264,4 +291,101 @@ public class TimeManager
     {
         return 86400.0 / TimeRatio; // 86400 secondes / 1.2 = 72000 secondes = 20 heures
     }
+
+    // ========================================
+    // CALCULS CYCLE JOUR/NUIT SAISONNIER
+    // ========================================
+
+    /// <summary>
+    /// Calcule la durée de lumière (heures) selon le jour de l'année.
+    /// Solstice d'hiver (21 déc, jour ~355) : 10h de lumière
+    /// Solstice d'été (21 juin, jour ~172) : 18h de lumière
+    /// Variation sinusoïdale entre les deux.
+    /// </summary>
+    private float CalculateDaylightDuration()
+    {
+        // Constantes de variation saisonnière
+        const float minDaylight = 10.0f; // Hiver : 10h de lumière (8h jour + 2h transitions)
+        const float maxDaylight = 18.0f; // Été : 18h de lumière (16h jour + 2h transitions)
+        const int summerSolstice = 172;  // ~21 juin (jour le plus long)
+
+        // Jour de l'année (1-365)
+        int dayOfYear = DayOfYear;
+
+        // Décalage pour que le pic soit au solstice d'été
+        // sin atteint son maximum à π/2, donc on décale de summerSolstice jours
+        float angle = (dayOfYear - summerSolstice) * 2.0f * MathF.PI / 365.0f;
+
+        // Variation sinusoïdale : -1 (hiver) à +1 (été)
+        float seasonalVariation = MathF.Sin(angle);
+
+        // Interpolation entre min et max
+        float avgDaylight = (minDaylight + maxDaylight) / 2.0f; // 14h
+        float amplitude = (maxDaylight - minDaylight) / 2.0f;    // 4h
+
+        return avgDaylight + (seasonalVariation * amplitude);
+    }
+
+    /// <summary>
+    /// Calcule l'heure du lever du soleil (début de l'aube) selon la saison.
+    /// Centre le jour autour de 12h (midi).
+    /// </summary>
+    private float CalculateSunriseHour()
+    {
+        float daylightDuration = DaylightDuration;
+        // Le jour est centré sur 12h, donc lever = 12 - (durée/2)
+        return 12.0f - (daylightDuration / 2.0f);
+    }
+
+    /// <summary>
+    /// Calcule l'heure du coucher du soleil (début du crépuscule) selon la saison.
+    /// </summary>
+    private float CalculateSunsetHour()
+    {
+        float daylightDuration = DaylightDuration;
+        // Coucher = lever + durée de lumière
+        return SunriseHour + daylightDuration;
+    }
+
+    /// <summary>
+    /// Calcule l'intensité lumineuse actuelle (0.0 = nuit, 1.0 = jour).
+    /// Transitions douces pendant l'aube (1h) et le crépuscule (1h).
+    /// </summary>
+    private float CalculateLightIntensity()
+    {
+        float currentHour = CurrentHour + (CurrentMinute / 60.0f); // Heure décimale
+        float sunrise = SunriseHour;
+        float sunset = SunsetHour;
+
+        const float transitionDuration = 1.0f; // 1 heure pour aube et crépuscule
+
+        // Nuit profonde (avant l'aube)
+        if (currentHour < sunrise)
+        {
+            return 0.15f; // Nuit = 15% de lumière (pour ne pas être totalement noir)
+        }
+        // Aube (transition 1h)
+        else if (currentHour < sunrise + transitionDuration)
+        {
+            float progress = (currentHour - sunrise) / transitionDuration;
+            return 0.15f + (1.0f - 0.15f) * progress; // Transition douce 15% → 100%
+        }
+        // Jour (pleine lumière)
+        else if (currentHour < sunset)
+        {
+            return 1.0f; // Plein jour = 100%
+        }
+        // Crépuscule (transition 1h)
+        else if (currentHour < sunset + transitionDuration)
+        {
+            float progress = (currentHour - sunset) / transitionDuration;
+            return 1.0f + (0.15f - 1.0f) * progress; // Transition douce 100% → 15%
+        }
+        // Nuit (après le crépuscule)
+        else
+        {
+            return 0.15f; // Nuit = 15%
+        }
+    }
 }
+

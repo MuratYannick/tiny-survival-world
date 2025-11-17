@@ -42,6 +42,7 @@ public class Game1 : XnaGame
 
     // Gestion du temps
     private TimeManager? _timeManager;
+    private DayNightCycleRenderer? _dayNightRenderer;
 
     // Input
     private KeyboardState _previousKeyboardState;
@@ -141,6 +142,10 @@ public class Game1 : XnaGame
         _timeManager = new TimeManager();
         GameLogger.Info($"TimeManager initialisé - Heure actuelle IG: {_timeManager.GetFormattedDateTime()}");
         GameLogger.Info($"Jour {_timeManager.CurrentDay} - {_timeManager.GetTimeOfDayName()}");
+
+        // Initialiser le renderer de cycle jour/nuit
+        _dayNightRenderer = new DayNightCycleRenderer(GraphicsDevice, _timeManager);
+        GameLogger.Info("DayNightCycleRenderer initialisé");
 
         // Centrer la caméra sur le joueur
         _camera.CenterOn(_player.Position);
@@ -334,6 +339,14 @@ public class Game1 : XnaGame
 
             _spriteBatch.End();
 
+            // Overlay de cycle jour/nuit (sans transformation de caméra)
+            if (_dayNightRenderer != null)
+            {
+                _spriteBatch.Begin();
+                _dayNightRenderer.Draw(_spriteBatch, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
+                _spriteBatch.End();
+            }
+
             // Debug info (sans transformation de caméra)
             if (_showDebugInfo)
             {
@@ -455,6 +468,7 @@ public class Game1 : XnaGame
             _playerRenderer?.Dispose();
             _legendRenderer?.Dispose();
             _configScreen?.Dispose();
+            _dayNightRenderer?.Dispose();
         }
 
         base.Dispose(disposing);
