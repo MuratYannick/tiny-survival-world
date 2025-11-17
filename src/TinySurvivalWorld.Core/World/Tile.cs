@@ -46,6 +46,16 @@ public class Tile
     public TerrainProperties Properties => TerrainDefinitions.GetProperties(Type);
 
     /// <summary>
+    /// Indique si ce terrain est toxique (empoisonnement progressif au fil du temps).
+    /// </summary>
+    public bool IsToxic => Properties.IsToxic;
+
+    /// <summary>
+    /// Indique si ce terrain est difficile (empêche de courir, augmente la fatigue).
+    /// </summary>
+    public bool IsDifficultTerrain => Properties.IsDifficultTerrain;
+
+    /// <summary>
     /// Indique si la tuile est traversable par les personnages.
     /// </summary>
     public bool IsWalkable => Type switch
