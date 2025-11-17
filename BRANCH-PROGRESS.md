@@ -156,6 +156,18 @@ Démarrer la phase 3 en analysant le système actuel et en planifiant les améli
    - ✅ ConfigurationScreen : 9 params → 15 params configurables
    - ✅ Build réussi : 0 erreurs, 0 avertissements
 
+13. **Propriétés environnementales des terrains**
+   - ✅ **IsToxic** : Terrain toxique (empoisonnement progressif)
+     - Terrain concerné : Toxic (zone contaminée)
+     - Futur : système d'empoisonnement basé sur temps d'exposition
+   - ✅ **IsDifficultTerrain** : Terrain difficile (pas de course, fatigue augmentée)
+     - Terrains concernés : ShallowWater, Mountain, Swamp
+     - Futur : système de fatigue basé sur temps de déplacement
+   - ✅ TerrainProperties enrichi avec 2 nouvelles propriétés booléennes
+   - ✅ 13 terrains mis à jour avec ces propriétés
+   - ✅ Helpers ajoutés dans Tile.cs (tile.IsToxic, tile.IsDifficultTerrain)
+   - ✅ Build réussi : 0 erreurs, 0 avertissements
+
 #### Tâches à réaliser
 
 ### Priorité Haute
