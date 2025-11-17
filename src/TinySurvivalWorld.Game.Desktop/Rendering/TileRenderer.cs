@@ -108,7 +108,7 @@ public class TileRenderer
     }
 
     /// <summary>
-    /// Rend une tile individuelle.
+    /// Rend une tile individuelle avec blending vers les tiles voisines.
     /// </summary>
     private void DrawTile(SpriteBatch spriteBatch, Tile tile)
     {
@@ -116,28 +116,172 @@ public class TileRenderer
             return;
 
         // Position en pixels dans le monde
-        var position = new Vector2(
-            tile.WorldX * WorldConstants.TileSize,
-            tile.WorldY * WorldConstants.TileSize
-        );
+        int pixelX = tile.WorldX * WorldConstants.TileSize;
+        int pixelY = tile.WorldY * WorldConstants.TileSize;
 
-        // Rectangle de la tile
-        var rect = new Rectangle(
-            (int)position.X,
-            (int)position.Y,
-            WorldConstants.TileSize,
-            WorldConstants.TileSize
-        );
+        // Couleur de base avec variation
+        var baseColor = TileColors.GetVariantColor(tile.Type, tile.WorldX, tile.WorldY);
 
-        // Couleur avec variation
-        var color = TileColors.GetVariantColor(tile.Type, tile.WorldX, tile.WorldY);
+        // Récupérer les tiles voisines (N, S, E, W)
+        var northTile = GetTileAt(tile.WorldX, tile.WorldY - 1);
+        var southTile = GetTileAt(tile.WorldX, tile.WorldY + 1);
+        var eastTile = GetTileAt(tile.WorldX + 1, tile.WorldY);
+        var westTile = GetTileAt(tile.WorldX - 1, tile.WorldY);
 
-        // Dessiner la tile
-        spriteBatch.Draw(
-            _pixelTexture,
-            rect,
-            color
+        // Taille de la bordure de transition (en pixels)
+        int blendSize = WorldConstants.TileSize / 4; // 25% de la tile
+
+        // Dessiner le centre de la tile (couleur pure)
+        var centerRect = new Rectangle(
+            pixelX + blendSize,
+            pixelY + blendSize,
+            WorldConstants.TileSize - blendSize * 2,
+            WorldConstants.TileSize - blendSize * 2
         );
+        spriteBatch.Draw(_pixelTexture, centerRect, baseColor);
+
+        // Dessiner les bordures avec blending si le voisin est différent
+        DrawBorder(spriteBatch, pixelX, pixelY, tile, northTile, baseColor, BorderSide.North, blendSize);
+        DrawBorder(spriteBatch, pixelX, pixelY, tile, southTile, baseColor, BorderSide.South, blendSize);
+        DrawBorder(spriteBatch, pixelX, pixelY, tile, eastTile, baseColor, BorderSide.East, blendSize);
+        DrawBorder(spriteBatch, pixelX, pixelY, tile, westTile, baseColor, BorderSide.West, blendSize);
+
+        // Dessiner les coins
+        DrawCorner(spriteBatch, pixelX, pixelY, tile, northTile, westTile, baseColor, CornerPosition.NorthWest, blendSize);
+        DrawCorner(spriteBatch, pixelX, pixelY, tile, northTile, eastTile, baseColor, CornerPosition.NorthEast, blendSize);
+        DrawCorner(spriteBatch, pixelX, pixelY, tile, southTile, westTile, baseColor, CornerPosition.SouthWest, blendSize);
+        DrawCorner(spriteBatch, pixelX, pixelY, tile, southTile, eastTile, baseColor, CornerPosition.SouthEast, blendSize);
+    }
+
+    /// <summary>
+    /// Récupère une tile à une position donnée (peut retourner null).
+    /// </summary>
+    private Tile? GetTileAt(int worldX, int worldY)
+    {
+        var (chunkX, chunkY) = Chunk.WorldToChunkCoords(worldX, worldY);
+        var chunk = _chunkManager.GetOrCreateChunk(chunkX, chunkY);
+
+        if (!chunk.IsGenerated)
+            return null;
+
+        var (localX, localY) = Chunk.WorldToLocalCoords(worldX, worldY);
+        return chunk.GetTile(localX, localY);
+    }
+
+    private enum BorderSide { North, South, East, West }
+    private enum CornerPosition { NorthWest, NorthEast, SouthWest, SouthEast }
+
+    /// <summary>
+    /// Dessine une bordure avec blending vers le voisin si différent.
+    /// </summary>
+    private void DrawBorder(SpriteBatch spriteBatch, int pixelX, int pixelY, Tile tile, Tile? neighbor,
+        Color baseColor, BorderSide side, int blendSize)
+    {
+        if (_pixelTexture == null)
+            return;
+
+        // Si pas de voisin ou voisin identique, dessiner la couleur de base
+        if (neighbor == null || neighbor.Type == tile.Type)
+        {
+            Rectangle rect = side switch
+            {
+                BorderSide.North => new Rectangle(pixelX + blendSize, pixelY, WorldConstants.TileSize - blendSize * 2, blendSize),
+                BorderSide.South => new Rectangle(pixelX + blendSize, pixelY + WorldConstants.TileSize - blendSize, WorldConstants.TileSize - blendSize * 2, blendSize),
+                BorderSide.East => new Rectangle(pixelX + WorldConstants.TileSize - blendSize, pixelY + blendSize, blendSize, WorldConstants.TileSize - blendSize * 2),
+                BorderSide.West => new Rectangle(pixelX, pixelY + blendSize, blendSize, WorldConstants.TileSize - blendSize * 2),
+                _ => Rectangle.Empty
+            };
+
+            if (rect != Rectangle.Empty)
+                spriteBatch.Draw(_pixelTexture, rect, baseColor);
+            return;
+        }
+
+        // Voisin différent : faire un gradient
+        var neighborColor = TileColors.GetColor(neighbor.Type);
+        int steps = 4; // Nombre de bandes de gradient
+
+        for (int i = 0; i < steps; i++)
+        {
+            float blend = (float)i / steps;
+            var gradientColor = TileColors.Lerp(neighborColor, baseColor, blend);
+
+            Rectangle rect = side switch
+            {
+                BorderSide.North => new Rectangle(
+                    pixelX + blendSize,
+                    pixelY + (i * blendSize / steps),
+                    WorldConstants.TileSize - blendSize * 2,
+                    blendSize / steps),
+                BorderSide.South => new Rectangle(
+                    pixelX + blendSize,
+                    pixelY + WorldConstants.TileSize - blendSize + (i * blendSize / steps),
+                    WorldConstants.TileSize - blendSize * 2,
+                    blendSize / steps),
+                BorderSide.East => new Rectangle(
+                    pixelX + WorldConstants.TileSize - blendSize + (i * blendSize / steps),
+                    pixelY + blendSize,
+                    blendSize / steps,
+                    WorldConstants.TileSize - blendSize * 2),
+                BorderSide.West => new Rectangle(
+                    pixelX + (i * blendSize / steps),
+                    pixelY + blendSize,
+                    blendSize / steps,
+                    WorldConstants.TileSize - blendSize * 2),
+                _ => Rectangle.Empty
+            };
+
+            if (rect != Rectangle.Empty)
+                spriteBatch.Draw(_pixelTexture, rect, gradientColor);
+        }
+    }
+
+    /// <summary>
+    /// Dessine un coin avec blending vers les voisins si différents.
+    /// </summary>
+    private void DrawCorner(SpriteBatch spriteBatch, int pixelX, int pixelY, Tile tile,
+        Tile? neighborV, Tile? neighborH, Color baseColor, CornerPosition corner, int blendSize)
+    {
+        if (_pixelTexture == null)
+            return;
+
+        // Position du coin
+        Rectangle rect = corner switch
+        {
+            CornerPosition.NorthWest => new Rectangle(pixelX, pixelY, blendSize, blendSize),
+            CornerPosition.NorthEast => new Rectangle(pixelX + WorldConstants.TileSize - blendSize, pixelY, blendSize, blendSize),
+            CornerPosition.SouthWest => new Rectangle(pixelX, pixelY + WorldConstants.TileSize - blendSize, blendSize, blendSize),
+            CornerPosition.SouthEast => new Rectangle(pixelX + WorldConstants.TileSize - blendSize, pixelY + WorldConstants.TileSize - blendSize, blendSize, blendSize),
+            _ => Rectangle.Empty
+        };
+
+        if (rect == Rectangle.Empty)
+            return;
+
+        // Déterminer la couleur du coin en fonction des voisins
+        Color cornerColor = baseColor;
+
+        // Si les deux voisins sont identiques et différents de la tile actuelle
+        if (neighborV != null && neighborH != null &&
+            neighborV.Type == neighborH.Type && neighborV.Type != tile.Type)
+        {
+            // Blend vers la couleur commune des voisins
+            var neighborColor = TileColors.GetColor(neighborV.Type);
+            cornerColor = TileColors.Lerp(baseColor, neighborColor, 0.7f);
+        }
+        // Si un seul voisin est différent, blend vers lui
+        else if (neighborV != null && neighborV.Type != tile.Type)
+        {
+            var neighborColor = TileColors.GetColor(neighborV.Type);
+            cornerColor = TileColors.Lerp(baseColor, neighborColor, 0.5f);
+        }
+        else if (neighborH != null && neighborH.Type != tile.Type)
+        {
+            var neighborColor = TileColors.GetColor(neighborH.Type);
+            cornerColor = TileColors.Lerp(baseColor, neighborColor, 0.5f);
+        }
+
+        spriteBatch.Draw(_pixelTexture, rect, cornerColor);
     }
 
     /// <summary>
