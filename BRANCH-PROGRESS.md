@@ -168,6 +168,21 @@ Démarrer la phase 3 en analysant le système actuel et en planifiant les améli
    - ✅ Helpers ajoutés dans Tile.cs (tile.IsToxic, tile.IsDifficultTerrain)
    - ✅ Build réussi : 0 erreurs, 0 avertissements
 
+14. **Propriétés tactiques des terrains**
+   - ✅ **HasReducedVisibility** : Visibilité réduite (malus détection ennemie et visée)
+     - Terrains concernés : Forest (arbres denses), SparseForest (arbres clairsemés), Toxic (brouillard toxique)
+     - Futur : système de détection/visée avec malus en fonction du terrain
+   - ✅ **HasReducedStealth** : Furtivité réduite (malus discrétion, bruits de pas)
+     - Terrains concernés : ShallowWater (éclaboussures), Swamp (bruits dans la boue)
+     - Futur : système de furtivité avec malus sur terrains bruyants
+   - ✅ **HasPoorCover** : Peu de couverture (difficulté à se cacher/se mettre à l'abri)
+     - Terrains concernés : Sand, Grass, Dirt (terrains plats et ouverts), Hill (terrain rocheux exposé)
+     - Futur : système de couverture pour se cacher des ennemis
+   - ✅ TerrainProperties enrichi avec 3 nouvelles propriétés booléennes
+   - ✅ 13 terrains mis à jour avec valeurs appropriées
+   - ✅ Helpers ajoutés dans Tile.cs (tile.HasReducedVisibility, tile.HasReducedStealth, tile.HasPoorCover)
+   - ✅ Build réussi : 0 erreurs, 0 avertissements
+
 #### Tâches à réaliser
 
 ### Priorité Haute
