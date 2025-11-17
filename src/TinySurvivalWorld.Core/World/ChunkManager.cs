@@ -18,10 +18,10 @@ public class ChunkManager
     /// </summary>
     public int LoadedChunkCount => _loadedChunks.Count;
 
-    public ChunkManager(long worldSeed, int viewDistance = 3, int unloadDelayMinutes = 5)
+    public ChunkManager(long worldSeed, WorldGenerationConfig? config = null, int viewDistance = 3, int unloadDelayMinutes = 5)
     {
         _loadedChunks = new ConcurrentDictionary<string, Chunk>();
-        _worldGenerator = new WorldGenerator(worldSeed);
+        _worldGenerator = new WorldGenerator(worldSeed, config);
         _viewDistance = viewDistance;
         _unloadDelay = TimeSpan.FromMinutes(unloadDelayMinutes);
     }

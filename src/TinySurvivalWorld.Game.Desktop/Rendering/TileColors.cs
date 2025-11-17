@@ -28,7 +28,7 @@ public static class TileColors
             TileType.SnowPeak => new Color(240, 240, 250),      // Blanc neige
             TileType.Swamp => new Color(60, 80, 50),            // Vert-brun marécage
             TileType.Ruins => new Color(100, 80, 70),           // Gris-brun ruines
-            TileType.Radioactive => new Color(150, 200, 50),    // Vert radioactif
+            TileType.Toxic => new Color(150, 180, 40),          // Vert-jaune toxique
             _ => Color.Magenta                                  // Erreur (rose criard)
         };
     }
@@ -48,6 +48,25 @@ public static class TileColors
             MathHelper.Clamp(baseColor.R + variation, 0, 255),
             MathHelper.Clamp(baseColor.G + variation, 0, 255),
             MathHelper.Clamp(baseColor.B + variation, 0, 255)
+        );
+    }
+
+    /// <summary>
+    /// Interpole entre deux couleurs avec un facteur donné.
+    /// </summary>
+    /// <param name="color1">Couleur de départ</param>
+    /// <param name="color2">Couleur de fin</param>
+    /// <param name="amount">Facteur d'interpolation (0.0 = color1, 1.0 = color2)</param>
+    /// <returns>Couleur interpolée</returns>
+    public static Color Lerp(Color color1, Color color2, float amount)
+    {
+        amount = MathHelper.Clamp(amount, 0f, 1f);
+
+        return new Color(
+            (int)(color1.R + (color2.R - color1.R) * amount),
+            (int)(color1.G + (color2.G - color1.G) * amount),
+            (int)(color1.B + (color2.B - color1.B) * amount),
+            (int)(color1.A + (color2.A - color1.A) * amount)
         );
     }
 }

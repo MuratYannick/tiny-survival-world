@@ -12,11 +12,13 @@ public class WorldGenerator
     private readonly SimplexNoise _temperatureNoise;
     private readonly long _seed;
     private readonly Random _random;
+    private readonly WorldGenerationConfig _config;
 
-    public WorldGenerator(long seed)
+    public WorldGenerator(long seed, WorldGenerationConfig? config = null)
     {
         _seed = seed;
         _random = new Random((int)seed);
+        _config = config ?? WorldGenerationConfig.Default;
 
         // Créer 3 générateurs de bruit avec des seeds différentes
         _elevationNoise = new SimplexNoise(seed);
@@ -60,31 +62,35 @@ public class WorldGenerator
         var tile = new Tile(worldX, worldY);
 
         // Générer l'élévation avec du bruit fractal
-        float elevation = _elevationNoise.GenerateNormalized(
+        float elevationRaw = _elevationNoise.GenerateNormalized(
             worldX * WorldConstants.ElevationScale,
             worldY * WorldConstants.ElevationScale,
-            WorldConstants.NoiseOctaves,
-            WorldConstants.NoisePersistence,
-            WorldConstants.NoiseLacunarity
+            _config.ElevationOctaves,
+            _config.ElevationPersistence,
+            _config.ElevationLacunarity
         );
+        // Appliquer transformation Scale/Offset : offset + (value - 0.5) * scale
+        float elevation = Math.Clamp(_config.ElevationOffset + (elevationRaw - 0.5f) * _config.ElevationScale, 0f, 1f);
 
         // Générer l'humidité
-        float moisture = _moistureNoise.GenerateNormalized(
+        float moistureRaw = _moistureNoise.GenerateNormalized(
             worldX * WorldConstants.MoistureScale,
             worldY * WorldConstants.MoistureScale,
-            WorldConstants.NoiseOctaves,
-            WorldConstants.NoisePersistence,
-            WorldConstants.NoiseLacunarity
+            _config.MoistureOctaves,
+            _config.MoisturePersistence,
+            _config.MoistureLacunarity
         );
+        float moisture = Math.Clamp(_config.MoistureOffset + (moistureRaw - 0.5f) * _config.MoistureScale, 0f, 1f);
 
         // Générer la température (affectée par la latitude et l'élévation)
-        float baseTemp = _temperatureNoise.GenerateNormalized(
+        float baseTempRaw = _temperatureNoise.GenerateNormalized(
             worldX * WorldConstants.TemperatureScale,
             worldY * WorldConstants.TemperatureScale,
-            WorldConstants.NoiseOctaves,
-            WorldConstants.NoisePersistence,
-            WorldConstants.NoiseLacunarity
+            _config.TemperatureOctaves,
+            _config.TemperaturePersistence,
+            _config.TemperatureLacunarity
         );
+        float baseTemp = Math.Clamp(_config.TemperatureOffset + (baseTempRaw - 0.5f) * _config.TemperatureScale, 0f, 1f);
 
         // La température diminue avec l'élévation et la latitude
         float latitudeEffect = 1.0f - Math.Abs(worldY * 0.0001f); // Effet simplifié de latitude

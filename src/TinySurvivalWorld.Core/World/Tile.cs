@@ -41,12 +41,41 @@ public class Tile
     public float Temperature { get; set; }
 
     /// <summary>
+    /// Propriétés du terrain (probabilités de spawn pour mobs, ressources, items).
+    /// </summary>
+    public TerrainProperties Properties => TerrainDefinitions.GetProperties(Type);
+
+    /// <summary>
+    /// Indique si ce terrain est toxique (empoisonnement progressif au fil du temps).
+    /// </summary>
+    public bool IsToxic => Properties.IsToxic;
+
+    /// <summary>
+    /// Indique si ce terrain est difficile (empêche de courir, augmente la fatigue).
+    /// </summary>
+    public bool IsDifficultTerrain => Properties.IsDifficultTerrain;
+
+    /// <summary>
+    /// Indique si ce terrain réduit la visibilité (malus à la détection ennemie et à la visée).
+    /// </summary>
+    public bool HasReducedVisibility => Properties.HasReducedVisibility;
+
+    /// <summary>
+    /// Indique si ce terrain réduit la discrétion (malus à la furtivité, bruits de pas augmentés).
+    /// </summary>
+    public bool HasReducedStealth => Properties.HasReducedStealth;
+
+    /// <summary>
+    /// Indique si ce terrain offre peu de couverture (malus pour se cacher, difficulté à se mettre à l'abri).
+    /// </summary>
+    public bool HasPoorCover => Properties.HasPoorCover;
+
+    /// <summary>
     /// Indique si la tuile est traversable par les personnages.
     /// </summary>
     public bool IsWalkable => Type switch
     {
         TileType.DeepWater => false,
-        TileType.Mountain => false,
         TileType.SnowPeak => false,
         _ => true
     };
@@ -63,10 +92,11 @@ public class Tile
         TileType.Forest => 1.3f,
         TileType.SparseForest => 1.1f,
         TileType.Hill => 1.4f,
+        TileType.Mountain => 2.5f,
         TileType.Swamp => 2.0f,
         TileType.Ruins => 1.2f,
-        TileType.Radioactive => 1.5f,
-        _ => float.MaxValue // Non traversable
+        TileType.Toxic => 1.5f,
+        _ => float.MaxValue // Non traversable (DeepWater, SnowPeak)
     };
 
     /// <summary>

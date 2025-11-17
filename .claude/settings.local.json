@@ -18,7 +18,8 @@
       "Bash(dotnet ef database update:*)",
       "Bash(tasklist:*)",
       "Bash(findstr:*)",
-      "Bash(sc query:*)"
+      "Bash(sc query:*)",
+      "Bash(dotnet clean:*)"
     ],
     "deny": [],
     "ask": []
