@@ -56,6 +56,21 @@ public class Tile
     public bool IsDifficultTerrain => Properties.IsDifficultTerrain;
 
     /// <summary>
+    /// Indique si ce terrain réduit la visibilité (malus à la détection ennemie et à la visée).
+    /// </summary>
+    public bool HasReducedVisibility => Properties.HasReducedVisibility;
+
+    /// <summary>
+    /// Indique si ce terrain réduit la discrétion (malus à la furtivité, bruits de pas augmentés).
+    /// </summary>
+    public bool HasReducedStealth => Properties.HasReducedStealth;
+
+    /// <summary>
+    /// Indique si ce terrain offre peu de couverture (malus pour se cacher, difficulté à se mettre à l'abri).
+    /// </summary>
+    public bool HasPoorCover => Properties.HasPoorCover;
+
+    /// <summary>
     /// Indique si la tuile est traversable par les personnages.
     /// </summary>
     public bool IsWalkable => Type switch
